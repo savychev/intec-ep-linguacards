@@ -1,0 +1,20 @@
+@startuml
+actor User as U
+participant "Angular UI" as UI
+participant "AuthController" as C
+participant "AuthService" as S
+participant "UserRepository" as R
+participant "JWT Provider" as J
+
+U -> UI: Enter email + password
+UI -> C: POST /api/auth/login
+C -> S: login(email, password)
+S -> R: findByEmail(email)
+R --> S: User
+S -> S: verify password (BCrypt)
+S -> J: generateToken(userId, email)
+J --> S: jwt
+S --> C: jwt
+C --> UI: 200 OK + token
+UI --> U: User is authenticated
+@enduml
