@@ -120,6 +120,7 @@ Acceptance criteria:
 - Selection rule (MVP):
     - prefer NEW cards first, then LEARNING, then REVIEW
     - ignore MASTERED
+    - if multiple candidates exist, pick the oldest created card first (deterministic)
 - If no cards available -> 204 No Content (or 200 with null, but prefer 204).
 
 ### US-D2 Submit Rating

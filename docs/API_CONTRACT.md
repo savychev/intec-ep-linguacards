@@ -145,6 +145,9 @@ Request DTO (same fields as create)
 ## TRAINING
 
 ### GET /api/training/next?deckId={deckId}
+Owner isolation:
+- deckId must belong to authenticated user; otherwise return 403 Forbidden (or 404 Not Found to avoid existence leak).
+
 Response DTO:
 {
 "id": 10,
@@ -157,12 +160,20 @@ Response DTO:
 If no card available:
 - 204 No Content
 
+Selection rule (MVP):
+- prefer NEW, then LEARNING, then REVIEW
+- exclude MASTERED
+- if multiple cards match, return the oldest by createdAt (deterministic)
+
 ### POST /api/training/review
 Request DTO:
 {
 "cardId": 10,
 "rating": "GOOD"
 }
+
+Owner isolation:
+- cardId must belong to a deck owned by authenticated user; otherwise return 403 Forbidden (or 404 Not Found).
 
 Rules:
 - rating enum: AGAIN, HARD, GOOD, EASY
@@ -181,6 +192,9 @@ Response:
 ## STATS
 
 ### GET /api/stats/decks/{deckId}
+Owner isolation:
+- deckId must belong to authenticated user; otherwise return 403 Forbidden (or 404 Not Found).
+
 Response DTO:
 {
 "totalCards": 20,
@@ -191,3 +205,11 @@ Response DTO:
 "totalReviews": 120,
 "reviewsToday": 8
 }
+
+---
+
+## Business Rules Traceability (MVP)
+- BR-2 Owner Isolation -> all Deck/Card/Training/Stats endpoints verify ownership.
+- BR-4 Card Status lifecycle -> POST /api/decks/{deckId}/cards (default NEW), POST /api/training/review (rating mapping).
+- BR-5 Training selection -> GET /api/training/next?deckId={deckId}.
+- BR-6 Statistics -> GET /api/stats/decks/{deckId}.
