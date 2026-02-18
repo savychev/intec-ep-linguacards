@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:linguacards;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+app:
+  jwt:
+    secret: Zm9yLXRlc3RzLW9ubHktc3VwZXItc2VjcmV0LWtleS1tdXN0LWJlLWxvbmctZW5vdWdoLTk4NzY1NA==
+    expiration-ms: 3600000
