@@ -4,4 +4,4 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     created_at DATETIME NOT NULL,
     CONSTRAINT ux_users_email UNIQUE (email)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
