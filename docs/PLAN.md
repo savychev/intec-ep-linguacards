@@ -2,18 +2,18 @@
 
 ## 1. Milestones
 
-### Milestone 1 - Backend Foundation
-- Spring Boot project initialized
-- MySQL + Flyway configured
-- User entity
-- JWT authentication
-- Register/Login endpoints
-- Global exception handler
-- Integration test for authentication
+### Milestone 1 - Backend Foundation ✅ COMPLETED
+- [x] Spring Boot project initialized
+- [x] MySQL + Flyway configured
+- [x] User entity
+- [x] JWT authentication
+- [x] Register/Login endpoints
+- [x] Global exception handler
+- [x] Integration test for authentication
 
 Deliverable:
-- Working auth flow
-- Protected endpoint accessible with JWT
+- [x] Working auth flow
+- [x] Protected endpoint accessible with JWT
 
 ---
 
