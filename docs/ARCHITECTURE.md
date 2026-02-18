@@ -63,8 +63,8 @@ Recommended feature-oriented structure inside base package be.intec.linguacards:
 
 ### Service Layer
 - business rules
-- owner checks
-- training logic
+- owner checks (Deck/Card/Training/Stats ownership validation)
+- training logic (status mapping + deterministic next-card selection by createdAt)
 - transactions
 
 ### Repository Layer
