@@ -1,0 +1,20 @@
+@startuml
+actor User
+participant "Angular SPA" as Angular
+participant "TrainingController" as TrainingController
+participant "TrainingService" as TrainingService
+participant "ReviewLogRepository" as ReviewLogRepository
+database "Database" as Database
+
+User -> Angular: Rate card
+Angular -> TrainingController: POST /training/review
+TrainingController -> TrainingService: submitRating(cardId, rating)
+TrainingService -> ReviewLogRepository: save(reviewLog)
+ReviewLogRepository -> Database: INSERT review_log
+Database --> ReviewLogRepository: Persisted row
+ReviewLogRepository --> TrainingService: Saved ReviewLog
+TrainingService --> TrainingController: Success
+TrainingController --> Angular: 200 OK
+Angular --> User: Show success
+
+@enduml
