@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant "Angular SPA" as Angular
+participant "AuthController" as AuthController
+participant "AuthService" as AuthService
+participant "UserRepository" as UserRepository
+participant "JWTService" as JWTService
+
+User -> Angular: Submit credentials
+Angular -> AuthController: POST /auth/login
+AuthController -> AuthService: login(email, password)
+AuthService -> UserRepository: findByEmail(email)
+UserRepository --> AuthService: User
+AuthService -> AuthService: Validate password
+AuthService -> JWTService: generateToken(user)
+JWTService --> AuthService: JWT
+AuthService --> AuthController: Auth response
+AuthController --> Angular: 200 OK + JWT
+Angular -> Angular: Store token
+
+@enduml
