@@ -2,6 +2,7 @@ package be.intecbrussel.linguacards.service;
 
 import be.intecbrussel.linguacards.entity.User;
 import be.intecbrussel.linguacards.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,9 +11,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User createUser(String email, String passwordHash) {
@@ -30,6 +33,22 @@ public class UserService {
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public User register(String email, String rawPassword) {
+        String passwordHash = passwordEncoder.encode(rawPassword);
+        return createUser(email, passwordHash);
+    }
+
+    public User authenticate(String email, String rawPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+
+        if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Invalid credentials");
+        }
+
+        return user;
     }
 
     public User getById(Long id) {
