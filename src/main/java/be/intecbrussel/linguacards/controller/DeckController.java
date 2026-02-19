@@ -2,6 +2,7 @@ package be.intecbrussel.linguacards.controller;
 
 import be.intecbrussel.linguacards.dto.DeckRequest;
 import be.intecbrussel.linguacards.entity.Deck;
+import be.intecbrussel.linguacards.security.CurrentUserService;
 import be.intecbrussel.linguacards.service.DeckService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,11 @@ import java.util.List;
 public class DeckController {
 
     private final DeckService deckService;
+    private final CurrentUserService currentUserService;
 
-    public DeckController(DeckService deckService) {
+    public DeckController(DeckService deckService, CurrentUserService currentUserService) {
         this.deckService = deckService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping
@@ -32,9 +35,24 @@ public class DeckController {
         return deckService.getUserDecks(ownerId);
     }
 
+    @GetMapping("/me")
+    public List<Deck> getCurrentUserDecks() {
+        return deckService.getUserDecks(currentUserService.getCurrentUserId());
+    }
+
     @PostMapping
     public Deck createDeck(@RequestParam Long ownerId, @Valid @RequestBody DeckRequest request) {
         return deckService.createDeck(ownerId, request.getName(), request.getLanguageCode(), request.isPrivate());
+    }
+
+    @PostMapping("/me")
+    public Deck createDeckForCurrentUser(@Valid @RequestBody DeckRequest request) {
+        return deckService.createDeck(
+                currentUserService.getCurrentUserId(),
+                request.getName(),
+                request.getLanguageCode(),
+                request.isPrivate()
+        );
     }
 
     @GetMapping("/{deckId}")
