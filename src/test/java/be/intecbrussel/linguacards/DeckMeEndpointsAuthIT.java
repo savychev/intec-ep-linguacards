@@ -132,4 +132,70 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .andExpect(jsonPath("$.totalCards").value(1))
                 .andExpect(jsonPath("$.totalReviews", greaterThanOrEqualTo(1)));
     }
+
+    @Test
+    void nonMeEndpointsShouldFallbackToCurrentUserWhenOwnerIdMissing() throws Exception {
+        String email = "jwt-owner-3@example.com";
+        userRepository.save(User.builder()
+                .email(email)
+                .passwordHash("hash")
+                .build());
+
+        MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Deck No OwnerId",
+                                  "languageCode": "en"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Long deckId = objectMapper.readTree(createDeckResult.getResponse().getContentAsString()).get("id").asLong();
+
+        MvcResult createCardResult = mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "term": "world",
+                                  "definition": "earth",
+                                  "cefrLevel": "A1"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.term").value("world"))
+                .andReturn();
+
+        Long cardId = objectMapper.readTree(createCardResult.getResponse().getContentAsString()).get("id").asLong();
+
+        mockMvc.perform(get("/api/decks/{deckId}/cards", deckId)
+                        .with(jwt().jwt(j -> j.subject(email))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+
+        mockMvc.perform(get("/api/decks/{deckId}/training", deckId)
+                        .with(jwt().jwt(j -> j.subject(email))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+
+        mockMvc.perform(post("/api/decks/{deckId}/cards/{cardId}/review", deckId, cardId)
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "rating": "GOOD"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cardId").value(cardId));
+
+        mockMvc.perform(get("/api/decks/{deckId}/stats", deckId)
+                        .with(jwt().jwt(j -> j.subject(email))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCards").value(1));
+    }
+
 }

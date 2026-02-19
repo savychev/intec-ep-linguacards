@@ -32,23 +32,23 @@ public class TrainingController {
 
     @GetMapping("/{deckId}/training")
     public List<CardResponse> getTrainingCards(
-            @RequestParam Long ownerId,
+            @RequestParam(required = false) Long ownerId,
             @PathVariable Long deckId,
             @RequestParam(defaultValue = "0") int limit
     ) {
-        return trainingService.getTrainingCards(ownerId, deckId, limit).stream()
+        return trainingService.getTrainingCards(resolveOwnerId(ownerId), deckId, limit).stream()
                 .map(TrainingController::toCardResponse)
                 .toList();
     }
 
     @PostMapping("/{deckId}/cards/{cardId}/review")
     public ReviewLogResponse logReview(
-            @RequestParam Long ownerId,
+            @RequestParam(required = false) Long ownerId,
             @PathVariable Long deckId,
             @PathVariable Long cardId,
             @Valid @RequestBody ReviewRequest request
     ) {
-        ReviewLog reviewLog = trainingService.logReview(ownerId, deckId, cardId, request.getRating());
+        ReviewLog reviewLog = trainingService.logReview(resolveOwnerId(ownerId), deckId, cardId, request.getRating());
         return toReviewLogResponse(reviewLog);
     }
 
@@ -70,6 +70,10 @@ public class TrainingController {
     ) {
         ReviewLog reviewLog = trainingService.logReview(currentUserService.getCurrentUserId(), deckId, cardId, request.getRating());
         return toReviewLogResponse(reviewLog);
+    }
+
+    private Long resolveOwnerId(Long ownerId) {
+        return ownerId != null ? ownerId : currentUserService.getCurrentUserId();
     }
 
     private static CardResponse toCardResponse(Card card) {
