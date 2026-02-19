@@ -21,5 +21,5 @@ public class DeckRequest {
     @Size(max = 10)
     private String languageCode;
 
-    private boolean isPrivate;
+    private Boolean isPrivate;
 }

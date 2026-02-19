@@ -47,17 +47,19 @@ public class DeckController {
 
     @PostMapping
     public DeckResponse createDeck(@RequestParam Long ownerId, @Valid @RequestBody DeckRequest request) {
-        Deck deck = deckService.createDeck(ownerId, request.getName(), request.getLanguageCode(), request.isPrivate());
+        boolean isPrivate = request.getIsPrivate() != null ? request.getIsPrivate() : true;
+        Deck deck = deckService.createDeck(ownerId, request.getName(), request.getLanguageCode(), isPrivate);
         return toResponse(deck);
     }
 
     @PostMapping("/me")
     public DeckResponse createDeckForCurrentUser(@Valid @RequestBody DeckRequest request) {
+        boolean isPrivate = request.getIsPrivate() != null ? request.getIsPrivate() : true;
         Deck deck = deckService.createDeck(
                 currentUserService.getCurrentUserId(),
                 request.getName(),
                 request.getLanguageCode(),
-                request.isPrivate()
+                isPrivate
         );
         return toResponse(deck);
     }
@@ -69,7 +71,7 @@ public class DeckController {
 
     @PutMapping("/{deckId}")
     public DeckResponse updateDeck(@RequestParam Long ownerId, @PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
-        Deck deck = deckService.updateDeck(ownerId, deckId, request.getName(), request.getLanguageCode(), request.isPrivate());
+        Deck deck = deckService.updateDeck(ownerId, deckId, request.getName(), request.getLanguageCode(), Boolean.TRUE.equals(request.getIsPrivate()));
         return toResponse(deck);
     }
 
