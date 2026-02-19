@@ -5,6 +5,7 @@ import be.intecbrussel.linguacards.api.dto.ReviewLogResponse;
 import be.intecbrussel.linguacards.dto.ReviewRequest;
 import be.intecbrussel.linguacards.entity.Card;
 import be.intecbrussel.linguacards.entity.ReviewLog;
+import be.intecbrussel.linguacards.security.CurrentUserService;
 import be.intecbrussel.linguacards.service.TrainingService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +23,11 @@ import java.util.List;
 public class TrainingController {
 
     private final TrainingService trainingService;
+    private final CurrentUserService currentUserService;
 
-    public TrainingController(TrainingService trainingService) {
+    public TrainingController(TrainingService trainingService, CurrentUserService currentUserService) {
         this.trainingService = trainingService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping("/{deckId}/training")
@@ -46,6 +49,26 @@ public class TrainingController {
             @Valid @RequestBody ReviewRequest request
     ) {
         ReviewLog reviewLog = trainingService.logReview(ownerId, deckId, cardId, request.getRating());
+        return toReviewLogResponse(reviewLog);
+    }
+
+    @GetMapping("/me/{deckId}/training")
+    public List<CardResponse> getCurrentUserTrainingCards(
+            @PathVariable Long deckId,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        return trainingService.getTrainingCards(currentUserService.getCurrentUserId(), deckId, limit).stream()
+                .map(TrainingController::toCardResponse)
+                .toList();
+    }
+
+    @PostMapping("/me/{deckId}/cards/{cardId}/review")
+    public ReviewLogResponse logReviewForCurrentUser(
+            @PathVariable Long deckId,
+            @PathVariable Long cardId,
+            @Valid @RequestBody ReviewRequest request
+    ) {
+        ReviewLog reviewLog = trainingService.logReview(currentUserService.getCurrentUserId(), deckId, cardId, request.getRating());
         return toReviewLogResponse(reviewLog);
     }
 
