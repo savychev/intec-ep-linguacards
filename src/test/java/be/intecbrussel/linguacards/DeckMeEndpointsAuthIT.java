@@ -2,16 +2,15 @@ package be.intecbrussel.linguacards;
 
 import be.intecbrussel.linguacards.entity.User;
 import be.intecbrussel.linguacards.repository.UserRepository;
-import be.intecbrussel.linguacards.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,19 +26,16 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private JwtService jwtService;
-
     @Test
     void decksMeEndpointsShouldUseCurrentUserFromJwt() throws Exception {
-        User user = userRepository.save(User.builder()
-                .email("jwt-owner@example.com")
+        String email = "jwt-owner@example.com";
+        userRepository.save(User.builder()
+                .email(email)
                 .passwordHash("hash")
                 .build());
-        String token = jwtService.generateToken(user);
 
         mockMvc.perform(post("/api/decks/me")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .with(jwt().jwt(j -> j.subject(email)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -49,12 +45,16 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.owner.id").value(user.getId()));
+                .andExpect(jsonPath("$.name").value("JWT Deck"))
+                .andExpect(jsonPath("$.languageCode").value("en"))
+                .andExpect(jsonPath("$.isPrivate").value(true));
 
         mockMvc.perform(get("/api/decks/me")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                        .with(jwt().jwt(j -> j.subject(email))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].owner.id").value(user.getId()));
+                .andExpect(jsonPath("$[0].name").value("JWT Deck"))
+                .andExpect(jsonPath("$[0].languageCode").value("en"))
+                .andExpect(jsonPath("$[0].isPrivate").value(true));
     }
 }

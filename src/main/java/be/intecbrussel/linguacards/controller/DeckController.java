@@ -1,5 +1,6 @@
 package be.intecbrussel.linguacards.controller;
 
+import be.intecbrussel.linguacards.api.dto.DeckResponse;
 import be.intecbrussel.linguacards.dto.DeckRequest;
 import be.intecbrussel.linguacards.entity.Deck;
 import be.intecbrussel.linguacards.security.CurrentUserService;
@@ -31,43 +32,54 @@ public class DeckController {
     }
 
     @GetMapping
-    public List<Deck> getUserDecks(@RequestParam Long ownerId) {
-        return deckService.getUserDecks(ownerId);
+    public List<DeckResponse> getUserDecks(@RequestParam Long ownerId) {
+        return deckService.getUserDecks(ownerId).stream()
+                .map(DeckController::toResponse)
+                .toList();
     }
 
     @GetMapping("/me")
-    public List<Deck> getCurrentUserDecks() {
-        return deckService.getUserDecks(currentUserService.getCurrentUserId());
+    public List<DeckResponse> getCurrentUserDecks() {
+        return deckService.getUserDecks(currentUserService.getCurrentUserId()).stream()
+                .map(DeckController::toResponse)
+                .toList();
     }
 
     @PostMapping
-    public Deck createDeck(@RequestParam Long ownerId, @Valid @RequestBody DeckRequest request) {
-        return deckService.createDeck(ownerId, request.getName(), request.getLanguageCode(), request.isPrivate());
+    public DeckResponse createDeck(@RequestParam Long ownerId, @Valid @RequestBody DeckRequest request) {
+        Deck deck = deckService.createDeck(ownerId, request.getName(), request.getLanguageCode(), request.isPrivate());
+        return toResponse(deck);
     }
 
     @PostMapping("/me")
-    public Deck createDeckForCurrentUser(@Valid @RequestBody DeckRequest request) {
-        return deckService.createDeck(
+    public DeckResponse createDeckForCurrentUser(@Valid @RequestBody DeckRequest request) {
+        Deck deck = deckService.createDeck(
                 currentUserService.getCurrentUserId(),
                 request.getName(),
                 request.getLanguageCode(),
                 request.isPrivate()
         );
+        return toResponse(deck);
     }
 
     @GetMapping("/{deckId}")
-    public Deck getDeck(@RequestParam Long ownerId, @PathVariable Long deckId) {
-        return deckService.getDeck(ownerId, deckId);
+    public DeckResponse getDeck(@RequestParam Long ownerId, @PathVariable Long deckId) {
+        return toResponse(deckService.getDeck(ownerId, deckId));
     }
 
     @PutMapping("/{deckId}")
-    public Deck updateDeck(@RequestParam Long ownerId, @PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
-        return deckService.updateDeck(ownerId, deckId, request.getName(), request.getLanguageCode(), request.isPrivate());
+    public DeckResponse updateDeck(@RequestParam Long ownerId, @PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
+        Deck deck = deckService.updateDeck(ownerId, deckId, request.getName(), request.getLanguageCode(), request.isPrivate());
+        return toResponse(deck);
     }
 
     @DeleteMapping("/{deckId}")
     public ResponseEntity<Void> deleteDeck(@RequestParam Long ownerId, @PathVariable Long deckId) {
         deckService.deleteDeck(ownerId, deckId);
         return ResponseEntity.noContent().build();
+    }
+
+    private static DeckResponse toResponse(Deck deck) {
+        return new DeckResponse(deck.getId(), deck.getName(), deck.getLanguageCode(), deck.isPrivate());
     }
 }
