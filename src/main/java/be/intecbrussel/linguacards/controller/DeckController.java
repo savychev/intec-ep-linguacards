@@ -32,8 +32,8 @@ public class DeckController {
     }
 
     @GetMapping
-    public List<DeckResponse> getUserDecks(@RequestParam Long ownerId) {
-        return deckService.getUserDecks(ownerId).stream()
+    public List<DeckResponse> getUserDecks(@RequestParam(required = false) Long ownerId) {
+        return deckService.getUserDecks(resolveOwnerId(ownerId)).stream()
                 .map(DeckController::toResponse)
                 .toList();
     }
@@ -46,9 +46,9 @@ public class DeckController {
     }
 
     @PostMapping
-    public DeckResponse createDeck(@RequestParam Long ownerId, @Valid @RequestBody DeckRequest request) {
+    public DeckResponse createDeck(@RequestParam(required = false) Long ownerId, @Valid @RequestBody DeckRequest request) {
         boolean isPrivate = request.getIsPrivate() != null ? request.getIsPrivate() : true;
-        Deck deck = deckService.createDeck(ownerId, request.getName(), request.getLanguageCode(), isPrivate);
+        Deck deck = deckService.createDeck(resolveOwnerId(ownerId), request.getName(), request.getLanguageCode(), isPrivate);
         return toResponse(deck);
     }
 
@@ -65,20 +65,24 @@ public class DeckController {
     }
 
     @GetMapping("/{deckId}")
-    public DeckResponse getDeck(@RequestParam Long ownerId, @PathVariable Long deckId) {
-        return toResponse(deckService.getDeck(ownerId, deckId));
+    public DeckResponse getDeck(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
+        return toResponse(deckService.getDeck(resolveOwnerId(ownerId), deckId));
     }
 
     @PutMapping("/{deckId}")
-    public DeckResponse updateDeck(@RequestParam Long ownerId, @PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
-        Deck deck = deckService.updateDeck(ownerId, deckId, request.getName(), request.getLanguageCode(), Boolean.TRUE.equals(request.getIsPrivate()));
+    public DeckResponse updateDeck(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
+        Deck deck = deckService.updateDeck(resolveOwnerId(ownerId), deckId, request.getName(), request.getLanguageCode(), Boolean.TRUE.equals(request.getIsPrivate()));
         return toResponse(deck);
     }
 
     @DeleteMapping("/{deckId}")
-    public ResponseEntity<Void> deleteDeck(@RequestParam Long ownerId, @PathVariable Long deckId) {
-        deckService.deleteDeck(ownerId, deckId);
+    public ResponseEntity<Void> deleteDeck(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
+        deckService.deleteDeck(resolveOwnerId(ownerId), deckId);
         return ResponseEntity.noContent().build();
+    }
+
+    private Long resolveOwnerId(Long ownerId) {
+        return ownerId != null ? ownerId : currentUserService.getCurrentUserId();
     }
 
     private static DeckResponse toResponse(Deck deck) {

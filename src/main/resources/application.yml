@@ -20,6 +20,8 @@ spring:
         format_sql: true
 
 app:
+  cors:
+    allowed-origin: http://localhost:4200
   security:
     require-auth-for-api: true
     jwt:

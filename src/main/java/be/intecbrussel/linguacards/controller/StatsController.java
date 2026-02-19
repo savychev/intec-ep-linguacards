@@ -22,12 +22,16 @@ public class StatsController {
     }
 
     @GetMapping("/{deckId}/stats")
-    public DeckStats getDeckStats(@RequestParam Long ownerId, @PathVariable Long deckId) {
-        return statsService.getDeckStats(ownerId, deckId);
+    public DeckStats getDeckStats(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
+        return statsService.getDeckStats(resolveOwnerId(ownerId), deckId);
     }
 
     @GetMapping("/me/{deckId}/stats")
     public DeckStats getCurrentUserDeckStats(@PathVariable Long deckId) {
         return statsService.getDeckStats(currentUserService.getCurrentUserId(), deckId);
+    }
+
+    private Long resolveOwnerId(Long ownerId) {
+        return ownerId != null ? ownerId : currentUserService.getCurrentUserId();
     }
 }

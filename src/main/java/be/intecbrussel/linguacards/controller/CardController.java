@@ -32,16 +32,18 @@ public class CardController {
     }
 
     @GetMapping("/{deckId}/cards")
-    public List<CardResponse> getCards(@RequestParam Long ownerId, @PathVariable Long deckId) {
-        return cardService.getCards(ownerId, deckId).stream()
+    public List<CardResponse> getCards(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
+        Long effectiveOwnerId = resolveOwnerId(ownerId);
+        return cardService.getCards(effectiveOwnerId, deckId).stream()
                 .map(CardController::toResponse)
                 .toList();
     }
 
     @PostMapping("/{deckId}/cards")
-    public CardResponse createCard(@RequestParam Long ownerId, @PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
+    public CardResponse createCard(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
+        Long effectiveOwnerId = resolveOwnerId(ownerId);
         Card card = cardService.createCard(
-                ownerId,
+                effectiveOwnerId,
                 deckId,
                 request.getTerm(),
                 request.getDefinition(),
@@ -54,13 +56,14 @@ public class CardController {
 
     @PutMapping("/{deckId}/cards/{cardId}")
     public CardResponse updateCard(
-            @RequestParam Long ownerId,
+            @RequestParam(required = false) Long ownerId,
             @PathVariable Long deckId,
             @PathVariable Long cardId,
             @Valid @RequestBody CardRequest request
     ) {
+        Long effectiveOwnerId = resolveOwnerId(ownerId);
         Card card = cardService.updateCard(
-                ownerId,
+                effectiveOwnerId,
                 deckId,
                 cardId,
                 request.getTerm(),
@@ -73,8 +76,8 @@ public class CardController {
     }
 
     @DeleteMapping("/{deckId}/cards/{cardId}")
-    public ResponseEntity<Void> deleteCard(@RequestParam Long ownerId, @PathVariable Long deckId, @PathVariable Long cardId) {
-        cardService.deleteCard(ownerId, deckId, cardId);
+    public ResponseEntity<Void> deleteCard(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId, @PathVariable Long cardId) {
+        cardService.deleteCard(resolveOwnerId(ownerId), deckId, cardId);
         return ResponseEntity.noContent().build();
     }
 
@@ -133,5 +136,9 @@ public class CardController {
                 card.getCefrLevel(),
                 card.getTags()
         );
+    }
+
+    private Long resolveOwnerId(Long ownerId) {
+        return ownerId != null ? ownerId : currentUserService.getCurrentUserId();
     }
 }
