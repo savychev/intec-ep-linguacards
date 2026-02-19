@@ -1,5 +1,6 @@
 package be.intecbrussel.linguacards.controller;
 
+import be.intecbrussel.linguacards.api.dto.CardResponse;
 import be.intecbrussel.linguacards.dto.CardRequest;
 import be.intecbrussel.linguacards.entity.Card;
 import be.intecbrussel.linguacards.service.CardService;
@@ -28,13 +29,15 @@ public class CardController {
     }
 
     @GetMapping
-    public List<Card> getCards(@RequestParam Long ownerId, @PathVariable Long deckId) {
-        return cardService.getCards(ownerId, deckId);
+    public List<CardResponse> getCards(@RequestParam Long ownerId, @PathVariable Long deckId) {
+        return cardService.getCards(ownerId, deckId).stream()
+                .map(CardController::toResponse)
+                .toList();
     }
 
     @PostMapping
-    public Card createCard(@RequestParam Long ownerId, @PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
-        return cardService.createCard(
+    public CardResponse createCard(@RequestParam Long ownerId, @PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
+        Card card = cardService.createCard(
                 ownerId,
                 deckId,
                 request.getTerm(),
@@ -43,16 +46,17 @@ public class CardController {
                 request.getCefrLevel(),
                 request.getTags()
         );
+        return toResponse(card);
     }
 
     @PutMapping("/{cardId}")
-    public Card updateCard(
+    public CardResponse updateCard(
             @RequestParam Long ownerId,
             @PathVariable Long deckId,
             @PathVariable Long cardId,
             @Valid @RequestBody CardRequest request
     ) {
-        return cardService.updateCard(
+        Card card = cardService.updateCard(
                 ownerId,
                 deckId,
                 cardId,
@@ -62,11 +66,23 @@ public class CardController {
                 request.getCefrLevel(),
                 request.getTags()
         );
+        return toResponse(card);
     }
 
     @DeleteMapping("/{cardId}")
     public ResponseEntity<Void> deleteCard(@RequestParam Long ownerId, @PathVariable Long deckId, @PathVariable Long cardId) {
         cardService.deleteCard(ownerId, deckId, cardId);
         return ResponseEntity.noContent().build();
+    }
+
+    private static CardResponse toResponse(Card card) {
+        return new CardResponse(
+                card.getId(),
+                card.getTerm(),
+                card.getDefinition(),
+                card.getExample(),
+                card.getCefrLevel(),
+                card.getTags()
+        );
     }
 }

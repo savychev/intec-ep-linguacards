@@ -1,5 +1,7 @@
 package be.intecbrussel.linguacards.controller;
 
+import be.intecbrussel.linguacards.api.dto.CardResponse;
+import be.intecbrussel.linguacards.api.dto.ReviewLogResponse;
 import be.intecbrussel.linguacards.dto.ReviewRequest;
 import be.intecbrussel.linguacards.entity.Card;
 import be.intecbrussel.linguacards.entity.ReviewLog;
@@ -26,21 +28,44 @@ public class TrainingController {
     }
 
     @GetMapping("/{deckId}/training")
-    public List<Card> getTrainingCards(
+    public List<CardResponse> getTrainingCards(
             @RequestParam Long ownerId,
             @PathVariable Long deckId,
             @RequestParam(defaultValue = "0") int limit
     ) {
-        return trainingService.getTrainingCards(ownerId, deckId, limit);
+        return trainingService.getTrainingCards(ownerId, deckId, limit).stream()
+                .map(TrainingController::toCardResponse)
+                .toList();
     }
 
     @PostMapping("/{deckId}/cards/{cardId}/review")
-    public ReviewLog logReview(
+    public ReviewLogResponse logReview(
             @RequestParam Long ownerId,
             @PathVariable Long deckId,
             @PathVariable Long cardId,
             @Valid @RequestBody ReviewRequest request
     ) {
-        return trainingService.logReview(ownerId, deckId, cardId, request.getRating());
+        ReviewLog reviewLog = trainingService.logReview(ownerId, deckId, cardId, request.getRating());
+        return toReviewLogResponse(reviewLog);
+    }
+
+    private static CardResponse toCardResponse(Card card) {
+        return new CardResponse(
+                card.getId(),
+                card.getTerm(),
+                card.getDefinition(),
+                card.getExample(),
+                card.getCefrLevel(),
+                card.getTags()
+        );
+    }
+
+    private static ReviewLogResponse toReviewLogResponse(ReviewLog reviewLog) {
+        return new ReviewLogResponse(
+                reviewLog.getId(),
+                reviewLog.getRating().name(),
+                reviewLog.getReviewedAt(),
+                reviewLog.getCard().getId()
+        );
     }
 }

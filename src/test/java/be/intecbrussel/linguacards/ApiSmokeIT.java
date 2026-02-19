@@ -11,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import java.util.UUID;
+
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,7 +34,7 @@ class ApiSmokeIT extends IntegrationTestBase {
 
     @Test
     void duplicateTermInSameDeckShouldFail() throws Exception {
-        Long ownerId = createOwner("test@example.com");
+        Long ownerId = createOwner();
         Long deckId = createDeck(ownerId, "Deck1");
 
         mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
@@ -47,7 +49,13 @@ class ApiSmokeIT extends IntegrationTestBase {
                                   "tags": "greeting"
                                 }
                                 """))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.term").value("hello"))
+                .andExpect(jsonPath("$.definition").value("a greeting"))
+                .andExpect(jsonPath("$.example").isEmpty())
+                .andExpect(jsonPath("$.cefrLevel").value("A1"))
+                .andExpect(jsonPath("$.tags").value("greeting"));
 
         mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
                         .param("ownerId", String.valueOf(ownerId))
@@ -67,8 +75,8 @@ class ApiSmokeIT extends IntegrationTestBase {
 
     @Test
     void ownerIsolationShouldBlockAccessToOtherOwnerDeck() throws Exception {
-        Long ownerId = createOwner("test@example.com");
-        Long owner2Id = createOwner("other@example.com");
+        Long ownerId = createOwner();
+        Long owner2Id = createOwner();
         Long deckId = createDeck(ownerId, "Deck1");
 
         mockMvc.perform(get("/api/decks/{deckId}", deckId)
@@ -94,7 +102,7 @@ class ApiSmokeIT extends IntegrationTestBase {
 
     @Test
     void smokeFlowWithMockMvc() throws Exception {
-        Long ownerId = createOwner("test@example.com");
+        Long ownerId = createOwner();
 
         Long deckId = createDeck(ownerId, "Deck1");
 
@@ -112,6 +120,11 @@ class ApiSmokeIT extends IntegrationTestBase {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.term").value("hello"))
+                .andExpect(jsonPath("$.definition").value("a greeting"))
+                .andExpect(jsonPath("$.example").isEmpty())
+                .andExpect(jsonPath("$.cefrLevel").value("A1"))
+                .andExpect(jsonPath("$.tags").value("greeting"))
                 .andReturn();
 
         JsonNode cardJson = objectMapper.readTree(createCardResult.getResponse().getContentAsString());
@@ -121,7 +134,13 @@ class ApiSmokeIT extends IntegrationTestBase {
                         .param("ownerId", String.valueOf(ownerId))
                         .param("limit", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", greaterThanOrEqualTo(1)));
+                .andExpect(jsonPath("$.length()", greaterThanOrEqualTo(1)))
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].term").value("hello"))
+                .andExpect(jsonPath("$[0].definition").value("a greeting"))
+                .andExpect(jsonPath("$[0].example").isEmpty())
+                .andExpect(jsonPath("$[0].cefrLevel").value("A1"))
+                .andExpect(jsonPath("$[0].tags").value("greeting"));
 
         mockMvc.perform(post("/api/decks/{deckId}/cards/{cardId}/review", deckId, cardId)
                         .param("ownerId", String.valueOf(ownerId))
@@ -132,7 +151,10 @@ class ApiSmokeIT extends IntegrationTestBase {
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.rating").value("GOOD"));
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.rating").value("GOOD"))
+                .andExpect(jsonPath("$.reviewedAt").isString())
+                .andExpect(jsonPath("$.cardId").value(cardId));
 
         mockMvc.perform(get("/api/decks/{deckId}/stats", deckId)
                         .param("ownerId", String.valueOf(ownerId)))
@@ -141,9 +163,9 @@ class ApiSmokeIT extends IntegrationTestBase {
                 .andExpect(jsonPath("$.totalReviews", greaterThanOrEqualTo(1)));
     }
 
-    private Long createOwner(String email) {
+    private Long createOwner() {
         User owner = userRepository.save(User.builder()
-                .email(email)
+                .email("test+" + UUID.randomUUID() + "@example.com")
                 .passwordHash("hash")
                 .build());
         return owner.getId();
@@ -162,6 +184,9 @@ class ApiSmokeIT extends IntegrationTestBase {
                                 """.formatted(name)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.languageCode").value("en"))
+                .andExpect(jsonPath("$.isPrivate").value(true))
                 .andReturn();
 
         JsonNode deckJson = objectMapper.readTree(createDeckResult.getResponse().getContentAsString());
