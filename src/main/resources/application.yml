@@ -18,3 +18,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+app:
+  security:
+    require-auth-for-api: true
+    jwt:
+      secret: change-me-change-me-change-me-change-me
+      issuer: linguacards
+      ttl-seconds: 3600
