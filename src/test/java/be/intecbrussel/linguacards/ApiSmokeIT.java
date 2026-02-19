@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,29 +31,72 @@ class ApiSmokeIT extends IntegrationTestBase {
     private UserRepository userRepository;
 
     @Test
-    void smokeFlowWithMockMvc() throws Exception {
-        User owner = userRepository.save(User.builder()
-                .email("test@example.com")
-                .passwordHash("hash")
-                .build());
-        Long ownerId = owner.getId();
+    void duplicateTermInSameDeckShouldFail() throws Exception {
+        Long ownerId = createOwner("test@example.com");
+        Long deckId = createDeck(ownerId, "Deck1");
 
-        MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
+        mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
                         .param("ownerId", String.valueOf(ownerId))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "name": "Deck1",
-                                  "languageCode": "en",
-                                  "isPrivate": true
+                                  "term": "hello",
+                                  "definition": "a greeting",
+                                  "example": null,
+                                  "cefrLevel": "A1",
+                                  "tags": "greeting"
                                 }
                                 """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andReturn();
+                .andExpect(status().isOk());
 
-        JsonNode deckJson = objectMapper.readTree(createDeckResult.getResponse().getContentAsString());
-        Long deckId = deckJson.get("id").asLong();
+        mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
+                        .param("ownerId", String.valueOf(ownerId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "term": "hello",
+                                  "definition": "another meaning",
+                                  "example": null,
+                                  "cefrLevel": "A1",
+                                  "tags": "duplicate"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", containsString("Duplicate term")));
+    }
+
+    @Test
+    void ownerIsolationShouldBlockAccessToOtherOwnerDeck() throws Exception {
+        Long ownerId = createOwner("test@example.com");
+        Long owner2Id = createOwner("other@example.com");
+        Long deckId = createDeck(ownerId, "Deck1");
+
+        mockMvc.perform(get("/api/decks/{deckId}", deckId)
+                        .param("ownerId", String.valueOf(owner2Id)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", containsString("Deck not found")));
+
+        mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
+                        .param("ownerId", String.valueOf(owner2Id))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "term": "intrusion",
+                                  "definition": "should fail",
+                                  "example": null,
+                                  "cefrLevel": "A1",
+                                  "tags": "security"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", containsString("Deck not found")));
+    }
+
+    @Test
+    void smokeFlowWithMockMvc() throws Exception {
+        Long ownerId = createOwner("test@example.com");
+
+        Long deckId = createDeck(ownerId, "Deck1");
 
         MvcResult createCardResult = mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
                         .param("ownerId", String.valueOf(ownerId))
@@ -95,5 +139,32 @@ class ApiSmokeIT extends IntegrationTestBase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCards").value(1))
                 .andExpect(jsonPath("$.totalReviews", greaterThanOrEqualTo(1)));
+    }
+
+    private Long createOwner(String email) {
+        User owner = userRepository.save(User.builder()
+                .email(email)
+                .passwordHash("hash")
+                .build());
+        return owner.getId();
+    }
+
+    private Long createDeck(Long ownerId, String name) throws Exception {
+        MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
+                        .param("ownerId", String.valueOf(ownerId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "%s",
+                                  "languageCode": "en",
+                                  "isPrivate": true
+                                }
+                                """.formatted(name)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andReturn();
+
+        JsonNode deckJson = objectMapper.readTree(createDeckResult.getResponse().getContentAsString());
+        return deckJson.get("id").asLong();
     }
 }
