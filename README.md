@@ -55,3 +55,9 @@ npm start
 ```
 
 Frontend runs on `http://localhost:4200` and calls backend at `http://localhost:8080/api`.
+
+## API route canonicalization
+
+- Canonical route style is now `/api/decks/...` (without `me` segment).
+- Legacy `/api/decks/me/...` routes are kept as compatibility aliases and delegate to the same controller handlers.
+- Both styles use the authenticated principal from JWT via `CurrentUserService`; owner/tenant isolation is unchanged.

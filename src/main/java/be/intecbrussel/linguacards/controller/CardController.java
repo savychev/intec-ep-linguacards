@@ -30,14 +30,14 @@ public class CardController {
         this.currentUserService = currentUserService;
     }
 
-    @GetMapping("/{deckId}/cards")
+    @GetMapping({"/{deckId}/cards", "/me/{deckId}/cards"})
     public List<CardResponse> getCards(@PathVariable Long deckId) {
         return cardService.getCards(currentUserService.getCurrentUserId(), deckId).stream()
                 .map(CardController::toResponse)
                 .toList();
     }
 
-    @PostMapping("/{deckId}/cards")
+    @PostMapping({"/{deckId}/cards", "/me/{deckId}/cards"})
     public CardResponse createCard(@PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
         Card card = cardService.createCard(
                 currentUserService.getCurrentUserId(),
@@ -51,7 +51,7 @@ public class CardController {
         return toResponse(card);
     }
 
-    @PutMapping("/{deckId}/cards/{cardId}")
+    @PutMapping({"/{deckId}/cards/{cardId}", "/me/{deckId}/cards/{cardId}"})
     public CardResponse updateCard(
             @PathVariable Long deckId,
             @PathVariable Long cardId,
@@ -70,54 +70,8 @@ public class CardController {
         return toResponse(card);
     }
 
-    @DeleteMapping("/{deckId}/cards/{cardId}")
+    @DeleteMapping({"/{deckId}/cards/{cardId}", "/me/{deckId}/cards/{cardId}"})
     public ResponseEntity<Void> deleteCard(@PathVariable Long deckId, @PathVariable Long cardId) {
-        cardService.deleteCard(currentUserService.getCurrentUserId(), deckId, cardId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/me/{deckId}/cards")
-    public List<CardResponse> getCurrentUserCards(@PathVariable Long deckId) {
-        return cardService.getCards(currentUserService.getCurrentUserId(), deckId).stream()
-                .map(CardController::toResponse)
-                .toList();
-    }
-
-    @PostMapping("/me/{deckId}/cards")
-    public CardResponse createCardForCurrentUser(@PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
-        Card card = cardService.createCard(
-                currentUserService.getCurrentUserId(),
-                deckId,
-                request.getTerm(),
-                request.getDefinition(),
-                request.getExample(),
-                request.getCefrLevel(),
-                request.getTags()
-        );
-        return toResponse(card);
-    }
-
-    @PutMapping("/me/{deckId}/cards/{cardId}")
-    public CardResponse updateCardForCurrentUser(
-            @PathVariable Long deckId,
-            @PathVariable Long cardId,
-            @Valid @RequestBody CardRequest request
-    ) {
-        Card card = cardService.updateCard(
-                currentUserService.getCurrentUserId(),
-                deckId,
-                cardId,
-                request.getTerm(),
-                request.getDefinition(),
-                request.getExample(),
-                request.getCefrLevel(),
-                request.getTags()
-        );
-        return toResponse(card);
-    }
-
-    @DeleteMapping("/me/{deckId}/cards/{cardId}")
-    public ResponseEntity<Void> deleteCardForCurrentUser(@PathVariable Long deckId, @PathVariable Long cardId) {
         cardService.deleteCard(currentUserService.getCurrentUserId(), deckId, cardId);
         return ResponseEntity.noContent().build();
     }
