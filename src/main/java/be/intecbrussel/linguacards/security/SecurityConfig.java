@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -57,12 +57,9 @@ public class SecurityConfig {
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
         this.restAccessDeniedHandler = restAccessDeniedHandler;
 
-        // Валидация (чтобы не получить слабый ключ случайно)
+        // Простая учебная конфигурация: только проверяем, что секрет задан.
         if (jwtSecret == null || jwtSecret.isBlank()) {
             throw new IllegalStateException("app.security.jwt.secret must be set in application.yml");
-        }
-        if (jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
-            throw new IllegalStateException("app.security.jwt.secret must be at least 32 bytes long");
         }
     }
 
@@ -106,7 +103,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean

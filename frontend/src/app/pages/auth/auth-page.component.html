@@ -1,10 +1,6 @@
 <section class="auth-card">
-  <h1>{{ mode === 'login' ? 'Login' : 'Create account' }}</h1>
-
-  <div class="mode-toggle">
-    <button type="button" [class.active]="mode === 'login'" (click)="switchMode('login')">Login</button>
-    <button type="button" [class.active]="mode === 'register'" (click)="switchMode('register')">Register</button>
-  </div>
+  <h1>Login</h1>
+  <p class="hint">Учебный режим: если пользователя нет, он создастся автоматически.</p>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
@@ -14,11 +10,11 @@
 
     <label>
       Password
-      <input type="password" formControlName="password" placeholder="******">
+      <input type="password" formControlName="password" placeholder="1234">
     </label>
 
     @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
-      <p class="error">Password must be at least 8 characters long.</p>
+      <p class="error">Password must be at least 4 characters long.</p>
     }
 
     @if (error) {

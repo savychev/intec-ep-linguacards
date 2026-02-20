@@ -36,13 +36,12 @@ public class UserService {
     }
 
     public User register(String email, String rawPassword) {
-        String passwordHash = passwordEncoder.encode(rawPassword);
-        return createUser(email, passwordHash);
+        return createUser(email, passwordEncoder.encode(rawPassword));
     }
 
     public User authenticate(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+                .orElseGet(() -> register(email, rawPassword));
 
         if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
             throw new IllegalArgumentException("Invalid credentials");
