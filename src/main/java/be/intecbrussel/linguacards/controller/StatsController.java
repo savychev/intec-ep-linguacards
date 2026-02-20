@@ -3,6 +3,7 @@ package be.intecbrussel.linguacards.controller;
 import be.intecbrussel.linguacards.security.CurrentUserService;
 import be.intecbrussel.linguacards.service.StatsService;
 import be.intecbrussel.linguacards.service.model.DeckStats;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,20 @@ public class StatsController {
     }
 
     private Long resolveOwnerId(Long ownerId) {
-        return ownerId != null ? ownerId : currentUserService.getCurrentUserId();
+        Long currentUserId;
+        try {
+            currentUserId = currentUserService.getCurrentUserId();
+        } catch (IllegalArgumentException ex) {
+            if (ownerId != null) {
+                return ownerId;
+            }
+            throw ex;
+        }
+
+        if (ownerId != null && !ownerId.equals(currentUserId)) {
+            throw new AccessDeniedException("ownerId does not match authenticated user");
+        }
+
+        return currentUserId;
     }
 }

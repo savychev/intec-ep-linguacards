@@ -35,6 +35,13 @@ public class SecurityConfig {
             @Value("${app.security.require-auth-for-api:true}") boolean requireAuthForApi,
             @Value("${app.security.jwt.secret}") String jwtSecret
     ) {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            throw new IllegalStateException("JWT secret must be provided via app.security.jwt.secret");
+        }
+        if (jwtSecret.length() < 32) {
+            throw new IllegalStateException("JWT secret must be at least 32 characters long");
+        }
+
         this.requireAuthForApi = requireAuthForApi;
         this.jwtSecret = jwtSecret;
     }

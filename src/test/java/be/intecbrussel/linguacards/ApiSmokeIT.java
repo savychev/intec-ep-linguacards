@@ -69,7 +69,7 @@ class ApiSmokeIT extends IntegrationTestBase {
                                   "tags": "duplicate"
                                 }
                                 """))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error", containsString("Duplicate term")));
     }
 
@@ -81,7 +81,7 @@ class ApiSmokeIT extends IntegrationTestBase {
 
         mockMvc.perform(get("/api/decks/{deckId}", deckId)
                         .param("ownerId", String.valueOf(owner2Id)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error", containsString("Deck not found")));
 
         mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
@@ -96,7 +96,7 @@ class ApiSmokeIT extends IntegrationTestBase {
                                   "tags": "security"
                                 }
                                 """))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error", containsString("Deck not found")));
     }
 

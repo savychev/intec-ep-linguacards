@@ -25,6 +25,6 @@ app:
   security:
     require-auth-for-api: true
     jwt:
-      secret: change-me-change-me-change-me-change-me
+      secret: ${APP_SECURITY_JWT_SECRET:}
       issuer: linguacards
       ttl-seconds: 3600
