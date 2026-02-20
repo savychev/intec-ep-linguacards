@@ -1,0 +1,14 @@
+<header class="header">
+  <div class="brand">EPlinguaCards</div>
+  <nav>
+    <a routerLink="/auth" routerLinkActive="active">Auth</a>
+    <a routerLink="/decks" routerLinkActive="active">Decks</a>
+  </nav>
+  @if (authService.token()) {
+    <button class="logout" type="button" (click)="logout()">Logout</button>
+  }
+</header>
+
+<main class="container">
+  <router-outlet></router-outlet>
+</main>

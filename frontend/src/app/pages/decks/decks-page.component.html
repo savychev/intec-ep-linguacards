@@ -1,0 +1,58 @@
+<section class="grid">
+  <article class="panel">
+    <h2>Create deck</h2>
+    <form [formGroup]="deckForm" (ngSubmit)="createDeck()" class="stack">
+      <input placeholder="Deck name" formControlName="name">
+      <input placeholder="Language code (en, fr...)" formControlName="languageCode">
+      <label class="inline"><input type="checkbox" formControlName="isPrivate"> Private</label>
+      <button type="submit">Add deck</button>
+    </form>
+
+    <h2>Your decks</h2>
+    <ul>
+      @for (deck of decks; track deck.id) {
+        <li>
+          <button type="button" (click)="selectDeck(deck)">{{ deck.name }} ({{ deck.languageCode }})</button>
+        </li>
+      }
+    </ul>
+  </article>
+
+  <article class="panel wide">
+    @if (selectedDeck) {
+      <h2>{{ selectedDeck.name }}</h2>
+      @if (stats) {
+        <p class="stats">
+          Total: {{ stats.totalCards }} · Reviewed: {{ stats.reviewedCards }} · Mastered: {{ stats.masteredCards }} · Due: {{ stats.dueCards }}
+        </p>
+      }
+
+      <a [routerLink]="['/training', selectedDeck.id]">Start training</a>
+
+      <h3>Add card</h3>
+      <form [formGroup]="cardForm" (ngSubmit)="addCard()" class="stack">
+        <input formControlName="term" placeholder="Term">
+        <input formControlName="definition" placeholder="Definition">
+        <input formControlName="example" placeholder="Example (optional)">
+        <input formControlName="cefrLevel" placeholder="CEFR (A1-C2)">
+        <input formControlName="tags" placeholder="Tags comma-separated">
+        <button type="submit">Add card</button>
+      </form>
+
+      <h3>Cards</h3>
+      <ul>
+        @for (card of cards; track card.id) {
+          <li>
+            <strong>{{ card.term }}</strong> — {{ card.definition }}
+          </li>
+        }
+      </ul>
+    } @else {
+      <p>Select a deck to view cards and stats.</p>
+    }
+
+    @if (message) {
+      <p class="message">{{ message }}</p>
+    }
+  </article>
+</section>

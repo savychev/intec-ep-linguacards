@@ -1,0 +1,51 @@
+.grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
+}
+
+.panel {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.wide ul {
+  padding-left: 1.2rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+input {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem;
+  background: #2563eb;
+  color: white;
+}
+
+.inline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.stats {
+  background: #eff6ff;
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.message {
+  color: #dc2626;
+}

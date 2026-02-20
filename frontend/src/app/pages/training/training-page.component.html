@@ -1,0 +1,23 @@
+<section class="trainer">
+  <a routerLink="/decks">← Back to decks</a>
+
+  @if (!done && current) {
+    <article class="card">
+      <h2>{{ current.term }}</h2>
+      @if (showAnswer) {
+        <p>{{ current.definition }}</p>
+        <small>{{ current.example }}</small>
+        <div class="ratings">
+          <button (click)="rate('AGAIN')">Again</button>
+          <button (click)="rate('HARD')">Hard</button>
+          <button (click)="rate('GOOD')">Good</button>
+          <button (click)="rate('EASY')">Easy</button>
+        </div>
+      } @else {
+        <button (click)="flip()">Show answer</button>
+      }
+    </article>
+  } @else {
+    <p>No cards due for training. Great job 🎉</p>
+  }
+</section>
