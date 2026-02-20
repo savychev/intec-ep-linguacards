@@ -3,21 +3,27 @@ package be.intecbrussel.linguacards.security;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,20 +36,24 @@ public class SecurityConfig {
 
     private final boolean requireAuthForApi;
     private final String jwtSecret;
+    private final String allowedOrigin;
 
     public SecurityConfig(
             @Value("${app.security.require-auth-for-api:true}") boolean requireAuthForApi,
-            @Value("${app.security.jwt.secret}") String jwtSecret
+            @Value("${app.security.jwt.secret}") String jwtSecret,
+            @Value("${app.cors.allowed-origin:http://localhost:4200}") String allowedOrigin
     ) {
-        if (jwtSecret == null || jwtSecret.isBlank()) {
-            throw new IllegalStateException("JWT secret must be provided via app.security.jwt.secret");
-        }
-        if (jwtSecret.length() < 32) {
-            throw new IllegalStateException("JWT secret must be at least 32 characters long");
-        }
-
         this.requireAuthForApi = requireAuthForApi;
         this.jwtSecret = jwtSecret;
+        this.allowedOrigin = allowedOrigin;
+
+        // Валидация (чтобы не получить слабый ключ случайно)
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            throw new IllegalStateException("app.security.jwt.secret must be set in application.yml");
+        }
+        if (jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("app.security.jwt.secret must be at least 32 bytes long");
+        }
     }
 
     @Bean
@@ -54,11 +64,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/auth/**").permitAll();
+
                     if (requireAuthForApi) {
                         auth.requestMatchers("/api/**").authenticated();
                     } else {
                         auth.requestMatchers("/api/**").permitAll();
                     }
+
                     auth.anyRequest().permitAll();
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
@@ -68,7 +80,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withSecretKey(secretKey()).macAlgorithm(MacAlgorithm.HS256).build();
+        return NimbusJwtDecoder.withSecretKey(secretKey())
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
     }
 
     @Bean
@@ -82,9 +96,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(
-            @Value("${app.cors.allowed-origin:http://localhost:4200}") String allowedOrigin
-    ) {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(allowedOrigin));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

@@ -25,6 +25,7 @@ app:
   security:
     require-auth-for-api: true
     jwt:
-      secret: ${APP_SECURITY_JWT_SECRET:}
+      # 32+ символа, просто строка (не base64)
+      secret: "change-me-please-change-me-please-1234"
       issuer: linguacards
       ttl-seconds: 3600
