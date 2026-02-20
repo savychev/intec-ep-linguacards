@@ -29,6 +29,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -36,20 +37,23 @@ public class SecurityConfig {
 
     private final boolean requireAuthForApi;
     private final String jwtSecret;
-    private final String allowedOrigin;
+    private final List<String> allowedOriginPatterns;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final RestAccessDeniedHandler restAccessDeniedHandler;
 
     public SecurityConfig(
             @Value("${app.security.require-auth-for-api:true}") boolean requireAuthForApi,
             @Value("${app.security.jwt.secret}") String jwtSecret,
-            @Value("${app.cors.allowed-origin:http://localhost:4200}") String allowedOrigin,
+            @Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOrigins,
             RestAuthenticationEntryPoint restAuthenticationEntryPoint,
             RestAccessDeniedHandler restAccessDeniedHandler
     ) {
         this.requireAuthForApi = requireAuthForApi;
         this.jwtSecret = jwtSecret;
-        this.allowedOrigin = allowedOrigin;
+        this.allowedOriginPatterns = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
+                .toList();
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
         this.restAccessDeniedHandler = restAccessDeniedHandler;
 
@@ -108,7 +112,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigin));
+        configuration.setAllowedOriginPatterns(allowedOriginPatterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

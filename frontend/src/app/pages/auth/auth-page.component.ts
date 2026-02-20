@@ -46,6 +46,11 @@ export class AuthPageComponent {
         this.router.navigate(['/decks']);
       },
       error: (err) => {
+        if (err.status === 0) {
+          this.error = 'Cannot reach API server. Check backend/CORS settings.';
+          return;
+        }
+
         this.error = err.error?.message ?? 'Authentication failed.';
       }
     });
