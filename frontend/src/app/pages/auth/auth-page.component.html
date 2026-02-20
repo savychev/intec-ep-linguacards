@@ -17,6 +17,10 @@
       <input type="password" formControlName="password" placeholder="******">
     </label>
 
+    @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+      <p class="error">Password must be at least 8 characters long.</p>
+    }
+
     @if (error) {
       <p class="error">{{ error }}</p>
     }
