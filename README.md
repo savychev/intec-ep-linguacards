@@ -55,6 +55,7 @@ npm start
 ```
 
 Frontend runs on `http://localhost:4200` and calls backend at `http://localhost:8080/api`.
+The start script binds to `0.0.0.0`, so it is reachable from host machines/port-forwarded environments.
 
 ## API route canonicalization
 
