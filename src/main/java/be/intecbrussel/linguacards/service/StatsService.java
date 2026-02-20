@@ -24,7 +24,7 @@ public class StatsService {
         deckRepository.findByIdAndOwnerId(deckId, ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
-        long totalCards = cardRepository.findAllByDeckId(deckId).size();
+        long totalCards = cardRepository.countByDeckId(deckId);
         long totalReviews = reviewLogRepository.countByCardDeckId(deckId);
         long againCount = reviewLogRepository.countByCardDeckIdAndRating(deckId, ReviewLog.Rating.AGAIN);
         long hardCount = reviewLogRepository.countByCardDeckIdAndRating(deckId, ReviewLog.Rating.HARD);

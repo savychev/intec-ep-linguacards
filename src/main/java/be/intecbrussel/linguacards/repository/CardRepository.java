@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<Card, Long> {
     List<Card> findAllByDeckId(Long deckId);
 
+    long countByDeckId(Long deckId);
+
     Optional<Card> findByIdAndDeckId(Long cardId, Long deckId);
 
     boolean existsByDeckIdAndTermIgnoreCase(Long deckId, String term);
