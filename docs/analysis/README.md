@@ -32,27 +32,27 @@ Current product and technical constraints:
   - No backend endpoint currently exists.
   - Logout is a **client-side action**: remove JWT from client storage and clear auth state.
 - Manage Decks (CRUD)
-  - `GET /api/decks` (optionally with `ownerId` query parameter)
+  - `GET /api/decks`
   - `GET /api/decks/me`
-  - `GET /api/decks/{deckId}` (optionally with `ownerId` query parameter)
-  - `POST /api/decks` (optionally with `ownerId` query parameter)
+  - `GET /api/decks/{deckId}`
+  - `POST /api/decks`
   - `POST /api/decks/me`
-  - `PUT /api/decks/{deckId}` (optionally with `ownerId` query parameter)
-  - `DELETE /api/decks/{deckId}` (optionally with `ownerId` query parameter)
+  - `PUT /api/decks/{deckId}`
+  - `DELETE /api/decks/{deckId}`
 - Manage Cards (CRUD)
-  - `GET /api/decks/{deckId}/cards` (optionally with `ownerId` query parameter)
-  - `POST /api/decks/{deckId}/cards` (optionally with `ownerId` query parameter)
-  - `PUT /api/decks/{deckId}/cards/{cardId}` (optionally with `ownerId` query parameter)
-  - `DELETE /api/decks/{deckId}/cards/{cardId}` (optionally with `ownerId` query parameter)
+  - `GET /api/decks/{deckId}/cards`
+  - `POST /api/decks/{deckId}/cards`
+  - `PUT /api/decks/{deckId}/cards/{cardId}`
+  - `DELETE /api/decks/{deckId}/cards/{cardId}`
   - `GET /api/decks/me/{deckId}/cards`
   - `POST /api/decks/me/{deckId}/cards`
   - `PUT /api/decks/me/{deckId}/cards/{cardId}`
   - `DELETE /api/decks/me/{deckId}/cards/{cardId}`
 - Start Training Session
-  - `GET /api/decks/{deckId}/training` (optionally with `ownerId` query parameter)
+  - `GET /api/decks/{deckId}/training`
   - `GET /api/decks/me/{deckId}/training`
 - Rate Card (Again/Hard/Good/Easy)
-  - `POST /api/decks/{deckId}/cards/{cardId}/review` (optionally with `ownerId` query parameter)
+  - `POST /api/decks/{deckId}/cards/{cardId}/review`
   - `POST /api/decks/me/{deckId}/cards/{cardId}/review`
 - View Statistics
   - `GET /api/decks/{deckId}/stats`

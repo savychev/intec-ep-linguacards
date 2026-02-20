@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,18 +31,16 @@ public class CardController {
     }
 
     @GetMapping("/{deckId}/cards")
-    public List<CardResponse> getCards(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
-        Long effectiveOwnerId = resolveOwnerId(ownerId);
-        return cardService.getCards(effectiveOwnerId, deckId).stream()
+    public List<CardResponse> getCards(@PathVariable Long deckId) {
+        return cardService.getCards(currentUserService.getCurrentUserId(), deckId).stream()
                 .map(CardController::toResponse)
                 .toList();
     }
 
     @PostMapping("/{deckId}/cards")
-    public CardResponse createCard(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
-        Long effectiveOwnerId = resolveOwnerId(ownerId);
+    public CardResponse createCard(@PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
         Card card = cardService.createCard(
-                effectiveOwnerId,
+                currentUserService.getCurrentUserId(),
                 deckId,
                 request.getTerm(),
                 request.getDefinition(),
@@ -56,14 +53,12 @@ public class CardController {
 
     @PutMapping("/{deckId}/cards/{cardId}")
     public CardResponse updateCard(
-            @RequestParam(required = false) Long ownerId,
             @PathVariable Long deckId,
             @PathVariable Long cardId,
             @Valid @RequestBody CardRequest request
     ) {
-        Long effectiveOwnerId = resolveOwnerId(ownerId);
         Card card = cardService.updateCard(
-                effectiveOwnerId,
+                currentUserService.getCurrentUserId(),
                 deckId,
                 cardId,
                 request.getTerm(),
@@ -76,8 +71,8 @@ public class CardController {
     }
 
     @DeleteMapping("/{deckId}/cards/{cardId}")
-    public ResponseEntity<Void> deleteCard(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId, @PathVariable Long cardId) {
-        cardService.deleteCard(resolveOwnerId(ownerId), deckId, cardId);
+    public ResponseEntity<Void> deleteCard(@PathVariable Long deckId, @PathVariable Long cardId) {
+        cardService.deleteCard(currentUserService.getCurrentUserId(), deckId, cardId);
         return ResponseEntity.noContent().build();
     }
 
@@ -138,14 +133,4 @@ public class CardController {
         );
     }
 
-    private Long resolveOwnerId(Long ownerId) {
-        try {
-            return currentUserService.getCurrentUserId();
-        } catch (IllegalArgumentException ex) {
-            if (ownerId != null) {
-                return ownerId;
-            }
-            throw ex;
-        }
-    }
 }
