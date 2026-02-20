@@ -10,12 +10,11 @@ import { AuthService } from '../../core/auth.service';
   styleUrl: './auth-page.component.scss'
 })
 export class AuthPageComponent {
-  mode: 'login' | 'register' = 'login';
   error = '';
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]]
+    password: ['', [Validators.required, Validators.minLength(4)]]
   });
 
   constructor(
@@ -24,11 +23,6 @@ export class AuthPageComponent {
     private readonly router: Router
   ) {}
 
-  switchMode(mode: 'login' | 'register'): void {
-    this.mode = mode;
-    this.error = '';
-  }
-
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -36,11 +30,8 @@ export class AuthPageComponent {
     }
 
     const { email, password } = this.form.getRawValue();
-    const request$ = this.mode === 'login'
-      ? this.authService.login(email, password)
-      : this.authService.register(email, password);
 
-    request$.subscribe({
+    this.authService.login(email, password).subscribe({
       next: () => {
         this.error = '';
         this.router.navigate(['/decks']);
