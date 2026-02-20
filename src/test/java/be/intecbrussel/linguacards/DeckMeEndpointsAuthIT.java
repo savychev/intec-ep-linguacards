@@ -199,7 +199,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
     }
 
     @Test
-    void nonMeEndpointsShouldRejectMismatchedOwnerIdForAuthenticatedUser() throws Exception {
+    void nonMeEndpointsShouldIgnoreOwnerIdForAuthenticatedUser() throws Exception {
         User owner = userRepository.save(User.builder()
                 .email("jwt-owner-4@example.com")
                 .passwordHash("hash")
@@ -212,8 +212,8 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
         mockMvc.perform(get("/api/decks")
                         .with(jwt().jwt(j -> j.subject(owner.getEmail())))
                         .param("ownerId", String.valueOf(otherUser.getId())))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("ownerId does not match authenticated user"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
 }
