@@ -5,11 +5,9 @@ import be.intecbrussel.linguacards.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,8 +24,8 @@ class CurrentUserServiceTest {
     }
 
     @Test
-    void getCurrentUserIdShouldResolveUserFromJwtSubject() {
-        setJwtAuthentication("owner@example.com");
+    void getCurrentUserIdShouldResolveUserFromAuthenticationName() {
+        setAuthentication("owner@example.com");
         Mockito.when(userRepository.findByEmail("owner@example.com"))
                 .thenReturn(Optional.of(User.builder().id(42L).email("owner@example.com").build()));
 
@@ -38,7 +36,7 @@ class CurrentUserServiceTest {
 
     @Test
     void getCurrentUserIdShouldThrowWhenUserCannotBeFound() {
-        setJwtAuthentication("missing@example.com");
+        setAuthentication("missing@example.com");
         Mockito.when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, currentUserService::getCurrentUserId);
@@ -46,14 +44,8 @@ class CurrentUserServiceTest {
         assertEquals("User not found", exception.getMessage());
     }
 
-    private void setJwtAuthentication(String subject) {
-        Jwt jwt = new Jwt(
-                "token-value",
-                Instant.now(),
-                Instant.now().plusSeconds(3600),
-                java.util.Map.of("alg", "HS256"),
-                java.util.Map.of("sub", subject)
-        );
-        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
+    private void setAuthentication(String email) {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(email, "password"));
     }
 }

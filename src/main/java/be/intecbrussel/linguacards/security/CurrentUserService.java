@@ -4,7 +4,6 @@ import be.intecbrussel.linguacards.entity.User;
 import be.intecbrussel.linguacards.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,11 +17,11 @@ public class CurrentUserService {
 
     public String getCurrentUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof JwtAuthenticationToken jwtAuthenticationToken)) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             throw new IllegalArgumentException("No authenticated user");
         }
 
-        String email = jwtAuthenticationToken.getToken().getSubject();
+        String email = authentication.getName();
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("No authenticated user");
         }

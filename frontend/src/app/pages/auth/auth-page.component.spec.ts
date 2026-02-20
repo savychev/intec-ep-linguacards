@@ -10,7 +10,7 @@ describe('AuthPageComponent', () => {
 
   beforeEach(() => {
     authService = jasmine.createSpyObj<AuthService>('AuthService', ['login']);
-    authService.login.and.returnValue(of({ token: 'token', userId: 1, email: 'user@example.com' }));
+    authService.login.and.returnValue(of({ userId: 1, email: 'user@example.com' }));
 
     TestBed.configureTestingModule({
       imports: [AuthPageComponent],

@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,7 +41,7 @@ class ApiSmokeIT extends IntegrationTestBase {
         Long deckId = createDeck(ownerEmail, "Deck1");
 
         mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(ownerEmail)))
+                        .with(user(ownerEmail))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -57,7 +57,7 @@ class ApiSmokeIT extends IntegrationTestBase {
                 .andExpect(jsonPath("$.term").value("hello"));
 
         mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(ownerEmail)))
+                        .with(user(ownerEmail))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -80,13 +80,13 @@ class ApiSmokeIT extends IntegrationTestBase {
         Long deckId = createDeck(ownerEmail, "Deck1");
 
         mockMvc.perform(get("/api/decks/{deckId}", deckId)
-                        .with(jwt().jwt(j -> j.subject(owner2Email))))
+                        .with(user(owner2Email)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.message", containsString("Deck not found")));
 
         mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(owner2Email)))
+                        .with(user(owner2Email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -108,7 +108,7 @@ class ApiSmokeIT extends IntegrationTestBase {
         Long deckId = createDeck(ownerEmail, "Deck1");
 
         MvcResult createCardResult = mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(ownerEmail)))
+                        .with(user(ownerEmail))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -127,13 +127,13 @@ class ApiSmokeIT extends IntegrationTestBase {
         Long cardId = cardJson.get("id").asLong();
 
         mockMvc.perform(get("/api/decks/{deckId}/training", deckId)
-                        .with(jwt().jwt(j -> j.subject(ownerEmail)))
+                        .with(user(ownerEmail))
                         .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", greaterThanOrEqualTo(1)));
 
         mockMvc.perform(post("/api/decks/{deckId}/cards/{cardId}/review", deckId, cardId)
-                        .with(jwt().jwt(j -> j.subject(ownerEmail)))
+                        .with(user(ownerEmail))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -144,7 +144,7 @@ class ApiSmokeIT extends IntegrationTestBase {
                 .andExpect(jsonPath("$.cardId").value(cardId));
 
         mockMvc.perform(get("/api/decks/{deckId}/stats", deckId)
-                        .with(jwt().jwt(j -> j.subject(ownerEmail))))
+                        .with(user(ownerEmail)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCards").value(1))
                 .andExpect(jsonPath("$.totalReviews", greaterThanOrEqualTo(1)));
@@ -161,7 +161,7 @@ class ApiSmokeIT extends IntegrationTestBase {
 
     private Long createDeck(String ownerEmail, String name) throws Exception {
         MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
-                        .with(jwt().jwt(j -> j.subject(ownerEmail)))
+                        .with(user(ownerEmail))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
