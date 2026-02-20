@@ -7,26 +7,13 @@
 
   h1 {
     margin-top: 0;
+    margin-bottom: 0.25rem;
   }
 
-  .mode-toggle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-
-    button {
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      background: white;
-      padding: 0.6rem;
-
-      &.active {
-        background: #2563eb;
-        color: white;
-        border-color: #2563eb;
-      }
-    }
+  .hint {
+    margin-top: 0;
+    color: #4b5563;
+    font-size: 0.95rem;
   }
 
   form {

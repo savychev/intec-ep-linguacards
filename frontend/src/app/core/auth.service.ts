@@ -14,12 +14,6 @@ export class AuthService {
 
   constructor(private readonly http: HttpClient) {}
 
-  register(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiBaseUrl}/auth/register`, { email, password }).pipe(
-      tap((response) => this.storeSession(response))
-    );
-  }
-
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiBaseUrl}/auth/login`, { email, password }).pipe(
       tap((response) => this.storeSession(response))

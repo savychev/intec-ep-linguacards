@@ -57,6 +57,13 @@ npm start
 Frontend runs on `http://localhost:4200` and calls backend at `http://localhost:8080/api`.
 The start script binds to `0.0.0.0`, so it is reachable from host machines/port-forwarded environments.
 
+
+## Simple auth mode (for learning)
+
+- Use `/api/auth/login` with `email` + `password`.
+- If email does not exist yet, backend auto-creates the user on first login.
+- Password check is intentionally simple for now (learning mode); later this can be replaced by stronger hashing/rules.
+
 ## API route canonicalization
 
 - Canonical route style is now `/api/decks/...` (without `me` segment).
