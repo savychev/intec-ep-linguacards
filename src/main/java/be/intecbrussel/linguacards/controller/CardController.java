@@ -7,6 +7,7 @@ import be.intecbrussel.linguacards.security.CurrentUserService;
 import be.intecbrussel.linguacards.service.CardService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -139,6 +140,20 @@ public class CardController {
     }
 
     private Long resolveOwnerId(Long ownerId) {
-        return ownerId != null ? ownerId : currentUserService.getCurrentUserId();
+        Long currentUserId;
+        try {
+            currentUserId = currentUserService.getCurrentUserId();
+        } catch (IllegalArgumentException ex) {
+            if (ownerId != null) {
+                return ownerId;
+            }
+            throw ex;
+        }
+
+        if (ownerId != null && !ownerId.equals(currentUserId)) {
+            throw new AccessDeniedException("ownerId does not match authenticated user");
+        }
+
+        return currentUserId;
     }
 }
