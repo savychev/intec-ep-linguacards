@@ -4,7 +4,7 @@
     <a routerLink="/auth" routerLinkActive="active">Auth</a>
     <a routerLink="/decks" routerLinkActive="active">Decks</a>
   </nav>
-  @if (authService.token()) {
+  @if (authService.isLoggedIn()) {
     <button class="logout" type="button" (click)="logout()">Logout</button>
   }
 </header>

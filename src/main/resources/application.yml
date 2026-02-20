@@ -25,8 +25,3 @@ app:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200}
   security:
     require-auth-for-api: true
-    jwt:
-      # 32+ символа, просто строка (не base64)
-      secret: ${JWT_SECRET:change-me-please-change-me-please-1234}
-      issuer: linguacards
-      ttl-seconds: 3600

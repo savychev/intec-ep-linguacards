@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -43,7 +43,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .build());
 
         mockMvc.perform(post("/api/decks/me")
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -58,7 +58,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .andExpect(jsonPath("$.isPrivate").value(true));
 
         mockMvc.perform(get("/api/decks/me")
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value("JWT Deck"))
@@ -75,7 +75,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .build());
 
         MvcResult createDeckResult = mockMvc.perform(post("/api/decks/me")
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -90,7 +90,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
         Long deckId = objectMapper.readTree(createDeckResult.getResponse().getContentAsString()).get("id").asLong();
 
         MvcResult createCardResult = mockMvc.perform(post("/api/decks/me/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -107,17 +107,17 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
         Long cardId = createdCard.get("id").asLong();
 
         mockMvc.perform(get("/api/decks/me/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
         mockMvc.perform(get("/api/decks/me/{deckId}/training", deckId)
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
         mockMvc.perform(post("/api/decks/me/{deckId}/cards/{cardId}/review", deckId, cardId)
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -128,7 +128,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .andExpect(jsonPath("$.cardId").value(cardId));
 
         mockMvc.perform(get("/api/decks/me/{deckId}/stats", deckId)
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCards").value(1))
                 .andExpect(jsonPath("$.totalReviews", greaterThanOrEqualTo(1)));
@@ -143,7 +143,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .build());
 
         MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -157,7 +157,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
         Long deckId = objectMapper.readTree(createDeckResult.getResponse().getContentAsString()).get("id").asLong();
 
         MvcResult createCardResult = mockMvc.perform(post("/api/decks/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -173,17 +173,17 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
         Long cardId = objectMapper.readTree(createCardResult.getResponse().getContentAsString()).get("id").asLong();
 
         mockMvc.perform(get("/api/decks/{deckId}/cards", deckId)
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
         mockMvc.perform(get("/api/decks/{deckId}/training", deckId)
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
         mockMvc.perform(post("/api/decks/{deckId}/cards/{cardId}/review", deckId, cardId)
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -194,7 +194,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .andExpect(jsonPath("$.cardId").value(cardId));
 
         mockMvc.perform(get("/api/decks/{deckId}/stats", deckId)
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCards").value(1));
     }
@@ -209,7 +209,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .build());
 
         MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -224,7 +224,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
         Long deckId = objectMapper.readTree(createDeckResult.getResponse().getContentAsString()).get("id").asLong();
 
         mockMvc.perform(put("/api/decks/{deckId}", deckId)
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -246,7 +246,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .build());
 
         MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -260,19 +260,19 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
         Long deckId = objectMapper.readTree(createDeckResult.getResponse().getContentAsString()).get("id").asLong();
 
         mockMvc.perform(get("/api/decks/me")
-                        .with(jwt().jwt(j -> j.subject(email))))
+                        .with(user(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value("Unified Routes"));
 
         mockMvc.perform(get("/api/decks/{deckId}/training", deckId)
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .param("limit", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
 
         mockMvc.perform(get("/api/decks/me/{deckId}/training", deckId)
-                        .with(jwt().jwt(j -> j.subject(email)))
+                        .with(user(email))
                         .param("limit", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -290,7 +290,7 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                 .build());
 
         mockMvc.perform(get("/api/decks")
-                        .with(jwt().jwt(j -> j.subject(owner.getEmail())))
+                        .with(user(owner.getEmail()))
                         .param("ownerId", String.valueOf(otherUser.getId())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
