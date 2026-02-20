@@ -7,7 +7,11 @@ participant "ReviewLogRepository" as ReviewLogRepository
 database "Database" as Database
 
 User -> Angular: Rate card
-Angular -> TrainingController: POST /training/review
+alt Current authenticated user shortcut
+  Angular -> TrainingController: POST /api/decks/me/{deckId}/cards/{cardId}/review
+else Owner-based route
+  Angular -> TrainingController: POST /api/decks/{deckId}/cards/{cardId}/review?ownerId={ownerId}
+end
 TrainingController -> TrainingService: submitRating(cardId, rating)
 TrainingService -> ReviewLogRepository: save(reviewLog)
 ReviewLogRepository -> Database: INSERT review_log

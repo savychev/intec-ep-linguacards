@@ -29,20 +29,31 @@ Current product and technical constraints:
 - Login
   - `POST /api/auth/login`
 - Logout
-  - `POST /api/auth/logout`
+  - No backend endpoint currently exists.
+  - Logout is a **client-side action**: remove JWT from client storage and clear auth state.
 - Manage Decks (CRUD)
-  - `GET /api/decks`
-  - `POST /api/decks`
-  - `PUT /api/decks/{deckId}`
-  - `DELETE /api/decks/{deckId}`
+  - `GET /api/decks` (optionally with `ownerId` query parameter)
+  - `GET /api/decks/me`
+  - `GET /api/decks/{deckId}` (optionally with `ownerId` query parameter)
+  - `POST /api/decks` (optionally with `ownerId` query parameter)
+  - `POST /api/decks/me`
+  - `PUT /api/decks/{deckId}` (optionally with `ownerId` query parameter)
+  - `DELETE /api/decks/{deckId}` (optionally with `ownerId` query parameter)
 - Manage Cards (CRUD)
-  - `GET /api/decks/{deckId}/cards`
-  - `POST /api/decks/{deckId}/cards`
-  - `PUT /api/cards/{cardId}`
-  - `DELETE /api/cards/{cardId}`
+  - `GET /api/decks/{deckId}/cards` (optionally with `ownerId` query parameter)
+  - `POST /api/decks/{deckId}/cards` (optionally with `ownerId` query parameter)
+  - `PUT /api/decks/{deckId}/cards/{cardId}` (optionally with `ownerId` query parameter)
+  - `DELETE /api/decks/{deckId}/cards/{cardId}` (optionally with `ownerId` query parameter)
+  - `GET /api/decks/me/{deckId}/cards`
+  - `POST /api/decks/me/{deckId}/cards`
+  - `PUT /api/decks/me/{deckId}/cards/{cardId}`
+  - `DELETE /api/decks/me/{deckId}/cards/{cardId}`
 - Start Training Session
-  - `POST /api/training/sessions`
+  - `GET /api/decks/{deckId}/training` (optionally with `ownerId` query parameter)
+  - `GET /api/decks/me/{deckId}/training`
 - Rate Card (Again/Hard/Good/Easy)
-  - `POST /api/training/reviews`
+  - `POST /api/decks/{deckId}/cards/{cardId}/review` (optionally with `ownerId` query parameter)
+  - `POST /api/decks/me/{deckId}/cards/{cardId}/review`
 - View Statistics
-  - `GET /api/stats/overview`
+  - `GET /api/decks/{deckId}/stats`
+  - `GET /api/decks/me/{deckId}/stats`
