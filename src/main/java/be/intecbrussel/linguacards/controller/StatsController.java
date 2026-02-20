@@ -20,13 +20,8 @@ public class StatsController {
         this.currentUserService = currentUserService;
     }
 
-    @GetMapping("/{deckId}/stats")
+    @GetMapping({"/{deckId}/stats", "/me/{deckId}/stats"})
     public DeckStats getDeckStats(@PathVariable Long deckId) {
-        return statsService.getDeckStats(currentUserService.getCurrentUserId(), deckId);
-    }
-
-    @GetMapping("/me/{deckId}/stats")
-    public DeckStats getCurrentUserDeckStats(@PathVariable Long deckId) {
         return statsService.getDeckStats(currentUserService.getCurrentUserId(), deckId);
     }
 

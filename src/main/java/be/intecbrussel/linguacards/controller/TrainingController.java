@@ -30,7 +30,7 @@ public class TrainingController {
         this.currentUserService = currentUserService;
     }
 
-    @GetMapping("/{deckId}/training")
+    @GetMapping({"/{deckId}/training", "/me/{deckId}/training"})
     public List<CardResponse> getTrainingCards(
             @PathVariable Long deckId,
             @RequestParam(defaultValue = "0") int limit
@@ -40,28 +40,8 @@ public class TrainingController {
                 .toList();
     }
 
-    @PostMapping("/{deckId}/cards/{cardId}/review")
+    @PostMapping({"/{deckId}/cards/{cardId}/review", "/me/{deckId}/cards/{cardId}/review"})
     public ReviewLogResponse logReview(
-            @PathVariable Long deckId,
-            @PathVariable Long cardId,
-            @Valid @RequestBody ReviewRequest request
-    ) {
-        ReviewLog reviewLog = trainingService.logReview(currentUserService.getCurrentUserId(), deckId, cardId, request.getRating());
-        return toReviewLogResponse(reviewLog);
-    }
-
-    @GetMapping("/me/{deckId}/training")
-    public List<CardResponse> getCurrentUserTrainingCards(
-            @PathVariable Long deckId,
-            @RequestParam(defaultValue = "20") int limit
-    ) {
-        return trainingService.getTrainingCards(currentUserService.getCurrentUserId(), deckId, limit).stream()
-                .map(TrainingController::toCardResponse)
-                .toList();
-    }
-
-    @PostMapping("/me/{deckId}/cards/{cardId}/review")
-    public ReviewLogResponse logReviewForCurrentUser(
             @PathVariable Long deckId,
             @PathVariable Long cardId,
             @Valid @RequestBody ReviewRequest request

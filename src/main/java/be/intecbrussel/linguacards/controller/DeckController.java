@@ -30,36 +30,17 @@ public class DeckController {
         this.currentUserService = currentUserService;
     }
 
-    @GetMapping
-    public List<DeckResponse> getUserDecks() {
-        return deckService.getUserDecks(currentUserService.getCurrentUserId()).stream()
-                .map(DeckController::toResponse)
-                .toList();
-    }
-
-    @GetMapping("/me")
+    @GetMapping({"", "/me"})
     public List<DeckResponse> getCurrentUserDecks() {
         return deckService.getUserDecks(currentUserService.getCurrentUserId()).stream()
                 .map(DeckController::toResponse)
                 .toList();
     }
 
-    @PostMapping
+    @PostMapping({"", "/me"})
     public DeckResponse createDeck(@Valid @RequestBody DeckRequest request) {
-        boolean isPrivate = request.getIsPrivate() != null ? request.getIsPrivate() : true;
+        boolean isPrivate = request.getIsPrivate() == null || request.getIsPrivate();
         Deck deck = deckService.createDeck(currentUserService.getCurrentUserId(), request.getName(), request.getLanguageCode(), isPrivate);
-        return toResponse(deck);
-    }
-
-    @PostMapping("/me")
-    public DeckResponse createDeckForCurrentUser(@Valid @RequestBody DeckRequest request) {
-        boolean isPrivate = request.getIsPrivate() != null ? request.getIsPrivate() : true;
-        Deck deck = deckService.createDeck(
-                currentUserService.getCurrentUserId(),
-                request.getName(),
-                request.getLanguageCode(),
-                isPrivate
-        );
         return toResponse(deck);
     }
 

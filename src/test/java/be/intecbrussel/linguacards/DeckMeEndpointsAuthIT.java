@@ -199,6 +199,47 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
     }
 
     @Test
+    void meAndCanonicalRoutesShouldShareSameBehavior() throws Exception {
+        String email = "jwt-owner-6@example.com";
+        userRepository.save(User.builder()
+                .email(email)
+                .passwordHash("hash")
+                .build());
+
+        MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Unified Routes",
+                                  "languageCode": "en"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Long deckId = objectMapper.readTree(createDeckResult.getResponse().getContentAsString()).get("id").asLong();
+
+        mockMvc.perform(get("/api/decks/me")
+                        .with(jwt().jwt(j -> j.subject(email))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name").value("Unified Routes"));
+
+        mockMvc.perform(get("/api/decks/{deckId}/training", deckId)
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .param("limit", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        mockMvc.perform(get("/api/decks/me/{deckId}/training", deckId)
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .param("limit", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
     void nonMeEndpointsShouldIgnoreOwnerIdForAuthenticatedUser() throws Exception {
         User owner = userRepository.save(User.builder()
                 .email("jwt-owner-4@example.com")
