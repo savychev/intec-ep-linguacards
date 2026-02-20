@@ -70,7 +70,13 @@ public class DeckController {
 
     @PutMapping("/{deckId}")
     public DeckResponse updateDeck(@PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
-        Deck deck = deckService.updateDeck(currentUserService.getCurrentUserId(), deckId, request.getName(), request.getLanguageCode(), Boolean.TRUE.equals(request.getIsPrivate()));
+        Deck deck = deckService.updateDeck(
+                currentUserService.getCurrentUserId(),
+                deckId,
+                request.getName(),
+                request.getLanguageCode(),
+                request.getIsPrivate()
+        );
         return toResponse(deck);
     }
 
