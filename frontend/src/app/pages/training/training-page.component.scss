@@ -1,0 +1,22 @@
+.trainer {
+  .card {
+    margin-top: 1rem;
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+  }
+
+  .ratings {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      background: #111827;
+      color: white;
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<section class="auth-card">
+  <h1>{{ mode === 'login' ? 'Login' : 'Create account' }}</h1>
+
+  <div class="mode-toggle">
+    <button type="button" [class.active]="mode === 'login'" (click)="switchMode('login')">Login</button>
+    <button type="button" [class.active]="mode === 'register'" (click)="switchMode('register')">Register</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Email
+      <input type="email" formControlName="email" placeholder="you@example.com">
+    </label>
+
+    <label>
+      Password
+      <input type="password" formControlName="password" placeholder="******">
+    </label>
+
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+
+    <button type="submit">Continue</button>
+  </form>
+</section>
