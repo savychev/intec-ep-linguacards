@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -196,6 +197,44 @@ class DeckMeEndpointsAuthIT extends IntegrationTestBase {
                         .with(jwt().jwt(j -> j.subject(email))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCards").value(1));
+    }
+
+
+    @Test
+    void updateDeckShouldKeepPrivateWhenIsPrivateMissing() throws Exception {
+        String email = "jwt-owner-private-update@example.com";
+        userRepository.save(User.builder()
+                .email(email)
+                .passwordHash("hash")
+                .build());
+
+        MvcResult createDeckResult = mockMvc.perform(post("/api/decks")
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Private Deck",
+                                  "languageCode": "en"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isPrivate").value(true))
+                .andReturn();
+
+        Long deckId = objectMapper.readTree(createDeckResult.getResponse().getContentAsString()).get("id").asLong();
+
+        mockMvc.perform(put("/api/decks/{deckId}", deckId)
+                        .with(jwt().jwt(j -> j.subject(email)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Renamed Private Deck",
+                                  "languageCode": "en"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Renamed Private Deck"))
+                .andExpect(jsonPath("$.isPrivate").value(true));
     }
 
     @Test

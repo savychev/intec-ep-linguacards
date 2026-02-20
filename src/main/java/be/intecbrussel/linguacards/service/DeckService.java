@@ -42,11 +42,13 @@ public class DeckService {
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
     }
 
-    public Deck updateDeck(Long ownerId, Long deckId, String name, String languageCode, boolean isPrivate) {
+    public Deck updateDeck(Long ownerId, Long deckId, String name, String languageCode, Boolean isPrivate) {
         Deck deck = getDeck(ownerId, deckId);
         deck.setName(name);
         deck.setLanguageCode(languageCode);
-        deck.setPrivate(isPrivate);
+        if (isPrivate != null) {
+            deck.setPrivate(isPrivate);
+        }
         return deckRepository.save(deck);
     }
 
