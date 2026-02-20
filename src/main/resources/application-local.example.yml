@@ -1,0 +1,18 @@
+# Example local configuration.
+# Copy this file to application-local.yml and replace placeholders with your local values.
+# application-local.yml is intended for local development and should not contain production secrets.
+
+spring:
+  datasource:
+    # JDBC URL for your local MySQL instance.
+    url: jdbc:mysql://localhost:3306/linguacards?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+    # Database user with permissions for the linguacards schema.
+    username: your_db_user
+    # Database password for the configured user.
+    password: your_db_password
+
+app:
+  security:
+    jwt:
+      # At least 32 characters. Keep this value private.
+      secret: your-very-long-jwt-secret-at-least-32-characters
