@@ -37,15 +37,21 @@ public class SecurityConfig {
     private final boolean requireAuthForApi;
     private final String jwtSecret;
     private final String allowedOrigin;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
 
     public SecurityConfig(
             @Value("${app.security.require-auth-for-api:true}") boolean requireAuthForApi,
             @Value("${app.security.jwt.secret}") String jwtSecret,
-            @Value("${app.cors.allowed-origin:http://localhost:4200}") String allowedOrigin
+            @Value("${app.cors.allowed-origin:http://localhost:4200}") String allowedOrigin,
+            RestAuthenticationEntryPoint restAuthenticationEntryPoint,
+            RestAccessDeniedHandler restAccessDeniedHandler
     ) {
         this.requireAuthForApi = requireAuthForApi;
         this.jwtSecret = jwtSecret;
         this.allowedOrigin = allowedOrigin;
+        this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
+        this.restAccessDeniedHandler = restAccessDeniedHandler;
 
         // Валидация (чтобы не получить слабый ключ случайно)
         if (jwtSecret == null || jwtSecret.isBlank()) {
@@ -73,6 +79,10 @@ public class SecurityConfig {
 
                     auth.anyRequest().permitAll();
                 })
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                        .accessDeniedHandler(restAccessDeniedHandler)
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();

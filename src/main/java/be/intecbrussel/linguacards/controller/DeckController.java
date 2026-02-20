@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,8 +31,8 @@ public class DeckController {
     }
 
     @GetMapping
-    public List<DeckResponse> getUserDecks(@RequestParam(required = false) Long ownerId) {
-        return deckService.getUserDecks(resolveOwnerId(ownerId)).stream()
+    public List<DeckResponse> getUserDecks() {
+        return deckService.getUserDecks(currentUserService.getCurrentUserId()).stream()
                 .map(DeckController::toResponse)
                 .toList();
     }
@@ -46,9 +45,9 @@ public class DeckController {
     }
 
     @PostMapping
-    public DeckResponse createDeck(@RequestParam(required = false) Long ownerId, @Valid @RequestBody DeckRequest request) {
+    public DeckResponse createDeck(@Valid @RequestBody DeckRequest request) {
         boolean isPrivate = request.getIsPrivate() != null ? request.getIsPrivate() : true;
-        Deck deck = deckService.createDeck(resolveOwnerId(ownerId), request.getName(), request.getLanguageCode(), isPrivate);
+        Deck deck = deckService.createDeck(currentUserService.getCurrentUserId(), request.getName(), request.getLanguageCode(), isPrivate);
         return toResponse(deck);
     }
 
@@ -65,31 +64,20 @@ public class DeckController {
     }
 
     @GetMapping("/{deckId}")
-    public DeckResponse getDeck(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
-        return toResponse(deckService.getDeck(resolveOwnerId(ownerId), deckId));
+    public DeckResponse getDeck(@PathVariable Long deckId) {
+        return toResponse(deckService.getDeck(currentUserService.getCurrentUserId(), deckId));
     }
 
     @PutMapping("/{deckId}")
-    public DeckResponse updateDeck(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
-        Deck deck = deckService.updateDeck(resolveOwnerId(ownerId), deckId, request.getName(), request.getLanguageCode(), Boolean.TRUE.equals(request.getIsPrivate()));
+    public DeckResponse updateDeck(@PathVariable Long deckId, @Valid @RequestBody DeckRequest request) {
+        Deck deck = deckService.updateDeck(currentUserService.getCurrentUserId(), deckId, request.getName(), request.getLanguageCode(), Boolean.TRUE.equals(request.getIsPrivate()));
         return toResponse(deck);
     }
 
     @DeleteMapping("/{deckId}")
-    public ResponseEntity<Void> deleteDeck(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
-        deckService.deleteDeck(resolveOwnerId(ownerId), deckId);
+    public ResponseEntity<Void> deleteDeck(@PathVariable Long deckId) {
+        deckService.deleteDeck(currentUserService.getCurrentUserId(), deckId);
         return ResponseEntity.noContent().build();
-    }
-
-    private Long resolveOwnerId(Long ownerId) {
-        try {
-            return currentUserService.getCurrentUserId();
-        } catch (IllegalArgumentException ex) {
-            if (ownerId != null) {
-                return ownerId;
-            }
-            throw ex;
-        }
     }
 
     private static DeckResponse toResponse(Deck deck) {

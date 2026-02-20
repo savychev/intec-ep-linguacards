@@ -6,7 +6,6 @@ import be.intecbrussel.linguacards.service.model.DeckStats;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,8 +21,8 @@ public class StatsController {
     }
 
     @GetMapping("/{deckId}/stats")
-    public DeckStats getDeckStats(@RequestParam(required = false) Long ownerId, @PathVariable Long deckId) {
-        return statsService.getDeckStats(resolveOwnerId(ownerId), deckId);
+    public DeckStats getDeckStats(@PathVariable Long deckId) {
+        return statsService.getDeckStats(currentUserService.getCurrentUserId(), deckId);
     }
 
     @GetMapping("/me/{deckId}/stats")
@@ -31,14 +30,4 @@ public class StatsController {
         return statsService.getDeckStats(currentUserService.getCurrentUserId(), deckId);
     }
 
-    private Long resolveOwnerId(Long ownerId) {
-        try {
-            return currentUserService.getCurrentUserId();
-        } catch (IllegalArgumentException ex) {
-            if (ownerId != null) {
-                return ownerId;
-            }
-            throw ex;
-        }
-    }
 }

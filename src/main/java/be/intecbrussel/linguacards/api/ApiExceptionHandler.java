@@ -1,5 +1,6 @@
 package be.intecbrussel.linguacards.api;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -7,51 +8,71 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.time.Instant;
+import java.util.List;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
         String message = ex.getMessage() == null ? "Invalid request" : ex.getMessage();
 
         if ("Invalid credentials".equals(message) || "No authenticated user".equals(message)) {
-            return buildError(HttpStatus.UNAUTHORIZED, message);
+            return buildError(HttpStatus.UNAUTHORIZED, "AUTH_UNAUTHORIZED", message, null, request);
         }
 
         if (message.endsWith("not found") || "User not found".equals(message)) {
-            return buildError(HttpStatus.NOT_FOUND, message);
+            return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", message, null, request);
         }
 
-        if (message.startsWith("Duplicate")) {
-            return buildError(HttpStatus.CONFLICT, message);
+        if (message.startsWith("Duplicate") || "Email already exists".equals(message)) {
+            return buildError(HttpStatus.CONFLICT, "RESOURCE_CONFLICT", message, null, request);
         }
 
-        return buildError(HttpStatus.BAD_REQUEST, message);
+        return buildError(HttpStatus.UNPROCESSABLE_ENTITY, "BUSINESS_RULE_VIOLATION", message, null, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
-        return buildError(HttpStatus.FORBIDDEN, ex.getMessage());
+    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.FORBIDDEN, "AUTH_FORBIDDEN", safeMessage(ex.getMessage(), "Forbidden"), null, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        String details = ex.getBindingResult()
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        List<String> details = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+                .toList();
 
-        return buildError(HttpStatus.BAD_REQUEST, details.isBlank() ? "Validation failed" : details);
+        return buildError(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                "VALIDATION_FAILED",
+                "Validation failed",
+                details,
+                request
+        );
     }
 
-    private ResponseEntity<Map<String, String>> buildError(HttpStatus status, String message) {
-        Map<String, String> body = new LinkedHashMap<>();
-        body.put("error", message == null || message.isBlank() ? status.getReasonPhrase() : message);
+    private ResponseEntity<ApiError> buildError(
+            HttpStatus status,
+            String code,
+            String message,
+            Object details,
+            HttpServletRequest request
+    ) {
+        ApiError body = new ApiError(
+                code,
+                safeMessage(message, status.getReasonPhrase()),
+                details,
+                request.getRequestURI(),
+                Instant.now()
+        );
         return ResponseEntity.status(status).body(body);
+    }
+
+    private String safeMessage(String message, String fallback) {
+        return message == null || message.isBlank() ? fallback : message;
     }
 }
