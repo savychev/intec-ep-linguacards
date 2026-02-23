@@ -14,10 +14,14 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health").permitAll()
+                        .requestMatchers(
+                                "/api/health",
+                                "/api/debug/**",
+                                "/api/auth/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // временно, пока нет JWT:
+                // временно: basic auth. JWT сделаем следующими коммитами
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
