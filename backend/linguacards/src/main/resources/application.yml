@@ -5,18 +5,9 @@ spring:
   application:
     name: linguacards-v2
 
-  datasource:
-    url: jdbc:h2:mem:linguacards;MODE=MySQL;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+  profiles:
+    # Для учебного проекта удобно, чтобы IntelliJ запускал сразу local
+    default: local
 
   jpa:
-    hibernate:
-      ddl-auto: create-drop
     open-in-view: false
-
-  h2:
-    console:
-      enabled: true
-      path: /h2
