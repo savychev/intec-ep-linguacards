@@ -1,4 +1,4 @@
-package be.intecbrussel.linguacards.heath;
+package be.intecbrussel.linguacards.health;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
