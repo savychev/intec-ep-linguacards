@@ -1,0 +1,19 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Maven
+target/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+*.local
+
+# Node (for later Angular)
+node_modules/
+dist/
