@@ -1,8 +1,8 @@
 package be.intecbrussel.linguacards.controller;
 
-import be.intecbrussel.linguacards.dto.auth.AuthResponse;
-import be.intecbrussel.linguacards.dto.auth.RegisterRequest;
-import be.intecbrussel.linguacards.entity.User;
+import be.intecbrussel.linguacards.dto.AuthResponse;
+import be.intecbrussel.linguacards.dto.LoginRequest;
+import be.intecbrussel.linguacards.dto.RegisterRequest;
 import be.intecbrussel.linguacards.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,13 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
-        User user = userService.register(request.getEmail(), request.getPassword());
-        return new AuthResponse(user.getId(), user.getEmail());
+        userService.register(request.getEmail(), request.getPassword());
+        return new AuthResponse("registered");
+    }
+
+    @PostMapping("/login")
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        userService.authenticate(request.getEmail(), request.getPassword());
+        return new AuthResponse("ok");
     }
 }

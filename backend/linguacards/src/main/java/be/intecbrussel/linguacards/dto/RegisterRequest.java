@@ -1,4 +1,4 @@
-package be.intecbrussel.linguacards.dto.auth;
+package be.intecbrussel.linguacards.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,10 +12,15 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank
-    @Size(min = 8, max = 72)
+    @Size(min = 6, max = 72)
     private String password;
 
     public RegisterRequest() {
+    }
+
+    public RegisterRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
     }
 
     public String getEmail() {
@@ -24,13 +29,5 @@ public class RegisterRequest {
 
     public String getPassword() {
         return password;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }
