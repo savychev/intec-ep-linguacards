@@ -1,0 +1,33 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Spring local configs
+application-local.yml
+application-local.properties
+.env
+.env.*
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Maven wrapper cache
+.mvn/wrapper/maven-wrapper.jar
