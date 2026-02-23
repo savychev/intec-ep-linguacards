@@ -1,5 +1,6 @@
 # IntelliJ IDEA
 .idea/
+**/.idea/
 *.iml
 out/
 
@@ -31,3 +32,4 @@ coverage/
 
 # Maven wrapper cache
 .mvn/wrapper/maven-wrapper.jar
+**/target/
