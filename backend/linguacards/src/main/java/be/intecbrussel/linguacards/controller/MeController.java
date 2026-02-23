@@ -15,7 +15,7 @@ public class MeController {
         return Map.of(
                 "email", jwt.getSubject(),
                 "userId", jwt.getClaim("userId"),
-                "issuer", jwt.getIssuer().toString()
+                "issuer", jwt.getClaimAsString("iss")
         );
     }
 }
