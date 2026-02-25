@@ -64,4 +64,16 @@ public class Deck {
     public List<Card> getCards() {
         return cards;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLanguageCode(String languageCode) {
+        this.languageCode = languageCode;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
 }
