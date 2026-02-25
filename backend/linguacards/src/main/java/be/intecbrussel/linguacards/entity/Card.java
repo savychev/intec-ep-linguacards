@@ -2,6 +2,7 @@ package be.intecbrussel.linguacards.entity;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,8 @@ import java.util.List;
 @Table(name = "cards", uniqueConstraints = {
         @UniqueConstraint(name = "uk_cards_deck_term", columnNames = {"deck_id", "term"})
 }, indexes = {
-        @Index(name = "idx_cards_deck_id", columnList = "deck_id")
+        @Index(name = "idx_cards_deck_id", columnList = "deck_id"),
+        @Index(name = "idx_cards_next_review_at", columnList = "next_review_at")
 })
 public class Card {
 
@@ -35,6 +37,16 @@ public class Card {
 
     @Column(length = 200)
     private String tags;
+
+    // --- Training fields (MVP) ---
+    @Column(name = "next_review_at")
+    private Instant nextReviewAt;
+
+    @Column(name = "last_reviewed_at")
+    private Instant lastReviewedAt;
+
+    @Column(name = "interval_days", nullable = false)
+    private int intervalDays = 0;
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewLog> reviewLogs = new ArrayList<>();
@@ -76,10 +88,23 @@ public class Card {
         return tags;
     }
 
+    public Instant getNextReviewAt() {
+        return nextReviewAt;
+    }
+
+    public Instant getLastReviewedAt() {
+        return lastReviewedAt;
+    }
+
+    public int getIntervalDays() {
+        return intervalDays;
+    }
+
     public List<ReviewLog> getReviewLogs() {
         return reviewLogs;
     }
 
+    // setters for update / training
     public void setTerm(String term) {
         this.term = term;
     }
@@ -98,5 +123,17 @@ public class Card {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public void setNextReviewAt(Instant nextReviewAt) {
+        this.nextReviewAt = nextReviewAt;
+    }
+
+    public void setLastReviewedAt(Instant lastReviewedAt) {
+        this.lastReviewedAt = lastReviewedAt;
+    }
+
+    public void setIntervalDays(int intervalDays) {
+        this.intervalDays = intervalDays;
     }
 }
