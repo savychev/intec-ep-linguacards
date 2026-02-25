@@ -79,4 +79,24 @@ public class Card {
     public List<ReviewLog> getReviewLogs() {
         return reviewLogs;
     }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
+    public void setDefinition(String definition) {
+        this.definition = definition;
+    }
+
+    public void setExample(String example) {
+        this.example = example;
+    }
+
+    public void setCefr(String cefr) {
+        this.cefr = cefr;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
 }
