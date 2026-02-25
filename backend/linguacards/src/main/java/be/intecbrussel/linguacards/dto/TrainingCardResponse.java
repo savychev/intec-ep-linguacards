@@ -10,6 +10,7 @@ public class TrainingCardResponse {
     private String definition;
     private String example;
 
+    private Instant lastReviewedAt;
     private Instant nextReviewAt;
     private int intervalDays;
 
@@ -18,6 +19,7 @@ public class TrainingCardResponse {
                                 String term,
                                 String definition,
                                 String example,
+                                Instant lastReviewedAt,
                                 Instant nextReviewAt,
                                 int intervalDays) {
         this.cardId = cardId;
@@ -25,6 +27,7 @@ public class TrainingCardResponse {
         this.term = term;
         this.definition = definition;
         this.example = example;
+        this.lastReviewedAt = lastReviewedAt;
         this.nextReviewAt = nextReviewAt;
         this.intervalDays = intervalDays;
     }
@@ -47,6 +50,10 @@ public class TrainingCardResponse {
 
     public String getExample() {
         return example;
+    }
+
+    public Instant getLastReviewedAt() {
+        return lastReviewedAt;
     }
 
     public Instant getNextReviewAt() {
