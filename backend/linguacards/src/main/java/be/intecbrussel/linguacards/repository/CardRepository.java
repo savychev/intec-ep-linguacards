@@ -30,4 +30,13 @@ public interface CardRepository extends JpaRepository<Card, Long> {
            order by c.nextReviewAt asc, c.id asc
            """)
     List<Card> findDueCards(Long deckId, Instant now);
+
+    // Stats:
+    long countByDeckId(Long deckId);
+
+    long countByDeckIdAndNextReviewAtIsNull(Long deckId);
+
+    long countByDeckIdAndNextReviewAtIsNotNullAndNextReviewAtLessThanEqual(Long deckId, Instant now);
+
+    long countByDeckIdAndNextReviewAtIsNotNullAndNextReviewAtGreaterThan(Long deckId, Instant now);
 }
