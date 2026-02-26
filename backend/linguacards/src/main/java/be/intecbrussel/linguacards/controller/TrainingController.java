@@ -2,6 +2,7 @@ package be.intecbrussel.linguacards.controller;
 
 import be.intecbrussel.linguacards.dto.ReviewRequest;
 import be.intecbrussel.linguacards.dto.TrainingCardResponse;
+import be.intecbrussel.linguacards.dto.TrainingNextResponse;
 import be.intecbrussel.linguacards.service.TrainingService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,11 +18,18 @@ public class TrainingController {
         this.trainingService = trainingService;
     }
 
+    @PostMapping("/api/decks/{deckId}/train/start")
+    public TrainingNextResponse start(@AuthenticationPrincipal Jwt jwt,
+                                      @PathVariable Long deckId) {
+        Long userId = jwt.getClaim("userId");
+        return trainingService.nextCardResult(userId, deckId);
+    }
+
     @PostMapping("/api/decks/{deckId}/train/next")
-    public TrainingCardResponse next(@AuthenticationPrincipal Jwt jwt,
+    public TrainingNextResponse next(@AuthenticationPrincipal Jwt jwt,
                                      @PathVariable Long deckId) {
         Long userId = jwt.getClaim("userId");
-        return trainingService.nextCard(userId, deckId);
+        return trainingService.nextCardResult(userId, deckId);
     }
 
     @PostMapping("/api/cards/{cardId}/review")

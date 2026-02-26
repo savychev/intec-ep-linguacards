@@ -1,6 +1,7 @@
 package be.intecbrussel.linguacards.service;
 
 import be.intecbrussel.linguacards.dto.TrainingCardResponse;
+import be.intecbrussel.linguacards.dto.TrainingNextResponse;
 import be.intecbrussel.linguacards.entity.*;
 import be.intecbrussel.linguacards.exception.ResourceNotFoundException;
 import be.intecbrussel.linguacards.repository.CardRepository;
@@ -29,23 +30,28 @@ public class TrainingService {
     }
 
     @Transactional(readOnly = true)
-    public TrainingCardResponse nextCard(Long userId, Long deckId) {
+    public TrainingNextResponse nextCardResult(Long userId, Long deckId) {
         Deck deck = requireMyDeck(userId, deckId);
+
+        long total = cardRepository.countByDeckId(deck.getId());
+        if (total == 0) {
+            return TrainingNextResponse.noCard("EMPTY_DECK");
+        }
 
         // 1) new cards first
         Card newCard = cardRepository.findFirstByDeckIdAndNextReviewAtIsNullOrderByIdAsc(deck.getId()).orElse(null);
         if (newCard != null) {
-            return toResponse(newCard);
+            return TrainingNextResponse.withCard(toResponse(newCard));
         }
 
         // 2) due cards
         List<Card> due = cardRepository.findDueCards(deck.getId(), Instant.now());
         if (!due.isEmpty()) {
-            return toResponse(due.get(0));
+            return TrainingNextResponse.withCard(toResponse(due.get(0)));
         }
 
-        // 3) nothing to train
-        return null;
+        // 3) nothing to train right now
+        return TrainingNextResponse.noCard("NO_CARDS_TO_TRAIN");
     }
 
     @Transactional
