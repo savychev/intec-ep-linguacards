@@ -1,0 +1,20 @@
+@startuml
+start
+:Select deck;
+:Load next card;
+:Show front;
+:Flip;
+:Choose rating;
+:Save review log;
+
+while (Next card?) is (yes)
+  :Load next card;
+  :Show front;
+  :Flip;
+  :Choose rating;
+  :Save review log;
+endwhile (no)
+
+:End session;
+stop
+@enduml

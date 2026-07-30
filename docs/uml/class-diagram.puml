@@ -1,0 +1,59 @@
+@startuml
+hide circle
+skinparam classAttributeIconSize 0
+
+class User {
+  +id: Long
+  +email: String
+  +passwordHash: String
+  +createdAt: LocalDateTime
+}
+
+class Deck {
+  +id: Long
+  +name: String
+  +language: Language
+  +createdAt: LocalDateTime
+}
+
+class Card {
+  +id: Long
+  +word: String
+  +definition: String
+  +exampleSentence: String
+  +status: CardStatus
+  +createdAt: LocalDateTime
+}
+
+class ReviewLog {
+  +id: Long
+  +rating: Rating
+  +reviewedAt: LocalDateTime
+}
+
+enum Language {
+  EN
+  NL
+  FR
+  PT
+}
+
+enum CardStatus {
+  NEW
+  LEARNING
+  REVIEW
+  MASTERED
+}
+
+enum Rating {
+  AGAIN
+  HARD
+  GOOD
+  EASY
+}
+
+User "1" -- "0..*" Deck : owns >
+Deck "1" -- "0..*" Card : contains >
+Card "1" -- "0..*" ReviewLog : has >
+
+@enduml

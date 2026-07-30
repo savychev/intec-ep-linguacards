@@ -1,0 +1,28 @@
+@startuml
+actor User as U
+participant "Angular UI" as UI
+participant "TrainingController" as TC
+participant "TrainingService" as TS
+participant "CardRepository" as CR
+participant "ReviewLogRepository" as RR
+
+== Get Next ==
+U -> UI: Start training
+UI -> TC: GET /api/training/next?deckId=X (JWT)
+TC -> TS: getNextCard(userId, deckId)
+TS -> CR: findNextCandidate(deckId)
+CR --> TS: Card (or none)
+TS --> TC: Card (or none)
+TC --> UI: 200 OK card OR 204 No Content
+
+== Submit Review ==
+U -> UI: Click rating (GOOD)
+UI -> TC: POST /api/training/review {cardId, rating} (JWT)
+TC -> TS: submitReview(userId, cardId, rating)
+TS -> TS: owner check via card->deck->userId
+TS -> RR: save ReviewLog(cardId, rating, reviewedAt)
+TS -> TS: update card status mapping
+TS -> CR: save updated Card
+TS --> TC: OK
+TC --> UI: 200 OK
+@enduml
