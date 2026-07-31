@@ -33,7 +33,7 @@ in [`PLAN.md`](PLAN.md).
 - [x] Login and registration UI.
 - [x] Deck list, create, edit and delete UI.
 - [x] Card list, create, edit and delete UI.
-- [ ] Training card and rating UI.
+- [x] Training card and rating UI.
 - [ ] Statistics view.
 - [ ] Loading, empty and error states.
 - [ ] Component and service tests for the core workflow.

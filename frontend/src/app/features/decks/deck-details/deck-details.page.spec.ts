@@ -62,6 +62,14 @@ describe('DeckDetailsPage', () => {
     expect(root().textContent).toContain('gezellig');
   });
 
+  it('links a non-empty deck to its training session', () => {
+    const link = [...root().querySelectorAll<HTMLAnchorElement>('a')].find(
+      (candidate) => candidate.textContent?.trim() === 'Start training',
+    );
+
+    expect(link?.getAttribute('href')).toBe('/training?deckId=1');
+  });
+
   it('creates a normalized card and adds it to the deck', () => {
     const created: Card = {
       id: 11,

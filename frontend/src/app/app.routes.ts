@@ -39,6 +39,13 @@ export const routes: Routes = [
     title: 'My decks | LinguaCards',
   },
   {
+    path: 'training',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/training/training.page').then((module) => module.TrainingPage),
+    title: 'Training | LinguaCards',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

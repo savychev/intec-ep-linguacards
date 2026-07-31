@@ -1,0 +1,239 @@
+:host {
+  display: grid;
+  align-content: start;
+  gap: 2rem;
+}
+
+.back-link {
+  width: fit-content;
+  color: var(--color-primary-dark);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.training-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.45fr);
+  align-items: end;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.eyebrow {
+  margin: 0 0 0.7rem;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.training-header h1 {
+  max-width: 48rem;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.training-header > p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.65;
+}
+
+.study-card {
+  display: grid;
+  width: min(100%, 50rem);
+  min-height: 30rem;
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 1.4rem;
+  background: var(--color-surface);
+  box-shadow: 0 1.5rem 4rem rgb(23 32 29 / 10%);
+}
+
+.prompt,
+.answer,
+.reveal-panel,
+.rating-panel {
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.prompt {
+  display: grid;
+  align-content: center;
+  min-height: 13rem;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(135deg, var(--color-primary-soft), #fffdf8 70%);
+  text-align: center;
+}
+
+.prompt span,
+.answer > span {
+  color: var(--color-primary-dark);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.prompt h2 {
+  overflow-wrap: anywhere;
+  margin: 0.75rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  line-height: 1;
+}
+
+.answer {
+  padding-bottom: 1.5rem;
+}
+
+.answer > p {
+  margin: 0.8rem 0 0;
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  line-height: 1.65;
+}
+
+blockquote {
+  margin: 1.25rem 0 0;
+  padding: 0.75rem 0 0.75rem 1rem;
+  border-left: 3px solid var(--color-primary-soft);
+  color: var(--color-muted);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.reveal-panel {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1rem;
+  min-height: 12rem;
+  text-align: center;
+}
+
+.reveal-panel p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.reveal-button {
+  min-width: 12rem;
+}
+
+.rating-panel {
+  display: grid;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  background: #f6f4ed;
+}
+
+.rating-title,
+.rating-note {
+  margin: 0;
+}
+
+.rating-title {
+  font-weight: 800;
+}
+
+.rating-note {
+  margin-top: 0.25rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+.rating-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.rating-button {
+  display: grid;
+  gap: 0.2rem;
+  min-height: 4rem;
+  padding: 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 0.8rem;
+  color: var(--color-ink);
+}
+
+.rating-button span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
+.rating-button.again {
+  border-color: #e4aaa4;
+  background: #fbe9e6;
+}
+
+.rating-button.hard {
+  border-color: #e5c79b;
+  background: #fff2d9;
+}
+
+.rating-button.good {
+  border-color: #a8c9bc;
+  background: #e5f3ed;
+}
+
+.rating-button.easy {
+  border-color: #aabfe1;
+  background: #eaf0fb;
+}
+
+.saving-note {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.study-card > .message {
+  margin-inline: clamp(1.5rem, 5vw, 3rem);
+}
+
+.state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.state-actions a,
+.state-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.complete-state .empty-icon {
+  background: #e5f3ed;
+  color: var(--color-primary-dark);
+}
+
+.session-loading {
+  min-height: 22rem;
+}
+
+@media (max-width: 42rem) {
+  .training-header {
+    grid-template-columns: 1fr;
+  }
+
+  .rating-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -27,7 +27,18 @@
       <h1>{{ currentDeck.name }}</h1>
       <p>{{ cards().length }} {{ cards().length === 1 ? 'card' : 'cards' }}</p>
     </div>
-    <button class="primary-button" type="button" (click)="openCreate()">Add card</button>
+    <div class="deck-actions">
+      @if (cards().length > 0) {
+        <a
+          class="secondary-button"
+          routerLink="/training"
+          [queryParams]="{ deckId: currentDeck.id }"
+        >
+          Start training
+        </a>
+      }
+      <button class="primary-button" type="button" (click)="openCreate()">Add card</button>
+    </div>
   </header>
 
   @if (editorOpen()) {
