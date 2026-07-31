@@ -68,10 +68,10 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Tests -->
+        <!-- Spring Boot 4 Web MVC tests (includes the core test starter) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
 
