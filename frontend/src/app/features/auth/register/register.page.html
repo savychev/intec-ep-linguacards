@@ -1,0 +1,68 @@
+<section class="auth-layout" aria-labelledby="register-title">
+  <div class="auth-intro">
+    <div>
+      <p class="eyebrow">A calmer way to practise</p>
+      <h1>Turn vocabulary into knowledge.</h1>
+      <p class="auth-intro-copy">
+        Create monolingual cards with useful definitions and examples, then review them at the right
+        moment.
+      </p>
+    </div>
+    <p class="language-sample">Small reviews. Lasting progress.</p>
+  </div>
+
+  <div class="auth-panel">
+    <h2 id="register-title">Create your account</h2>
+    <p class="panel-copy">Start building your first language deck.</p>
+
+    @if (errorMessage(); as message) {
+      <p class="form-message error" role="alert">{{ message }}</p>
+    }
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          formControlName="email"
+          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+          [attr.aria-describedby]="
+            form.controls.email.invalid && form.controls.email.touched ? 'email-error' : null
+          "
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <p id="email-error" class="field-error">Enter a valid email address.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="new-password"
+          formControlName="password"
+          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+          [attr.aria-describedby]="
+            form.controls.password.invalid && form.controls.password.touched
+              ? 'password-hint password-error'
+              : 'password-hint'
+          "
+        />
+        <p id="password-hint" class="field-hint">Use between 6 and 72 characters.</p>
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <p id="password-error" class="field-error">Password must contain 6–72 characters.</p>
+        }
+      </div>
+
+      <button class="primary-button" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Creating account…' : 'Create account' }}
+      </button>
+    </form>
+
+    <p class="auth-switch">Already have an account? <a routerLink="/login">Sign in</a></p>
+  </div>
+</section>

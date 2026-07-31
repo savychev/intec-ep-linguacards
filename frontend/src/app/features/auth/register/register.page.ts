@@ -1,28 +1,24 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { apiErrorMessage } from '../../../core/api/api-error';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
-  selector: 'app-login-page',
+  selector: 'app-register-page',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './login.page.html',
+  templateUrl: './register.page.html',
   styleUrl: '../auth-page.css',
 })
-export class LoginPage {
+export class RegisterPage {
   private readonly formBuilder = inject(FormBuilder);
   private readonly auth = inject(AuthService);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly registered = this.route.snapshot.queryParamMap.get('registered') === 'true';
-  protected readonly sessionExpired =
-    this.route.snapshot.queryParamMap.get('sessionExpired') === 'true';
 
   protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(320)]],
@@ -40,7 +36,7 @@ export class LoginPage {
     this.form.disable();
 
     this.auth
-      .login(this.form.getRawValue())
+      .register(this.form.getRawValue())
       .pipe(
         finalize(() => {
           this.submitting.set(false);
@@ -48,16 +44,11 @@ export class LoginPage {
         }),
       )
       .subscribe({
-        next: () => void this.router.navigateByUrl(this.returnUrl()),
+        next: () => void this.router.navigate(['/login'], { queryParams: { registered: 'true' } }),
         error: (error: unknown) =>
-          this.errorMessage.set(apiErrorMessage(error, 'Unable to sign in. Please try again.')),
+          this.errorMessage.set(
+            apiErrorMessage(error, 'Unable to create your account. Please try again.'),
+          ),
       });
-  }
-
-  private returnUrl(): string {
-    const requestedUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-    return requestedUrl?.startsWith('/') && !requestedUrl.startsWith('//')
-      ? requestedUrl
-      : '/decks';
   }
 }
