@@ -1,0 +1,18 @@
+export interface AuthCredentials {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  message: string;
+  accessToken?: string | null;
+  tokenType?: string | null;
+}
+
+export interface ApiErrorResponse {
+  timestamp: string;
+  status: number;
+  error: string;
+  message: string;
+  path: string;
+}

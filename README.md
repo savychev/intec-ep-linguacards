@@ -30,8 +30,8 @@ target language.
 - ⚠️ **Consistent API errors** — global exception handling with typed exceptions
 - 🩺 Health endpoint; DTOs for every request/response
 
-**Frontend:** Angular SPA (standalone components) with `auth`, `decks` and `train`
-features — in development.
+**Frontend:** Angular SPA with working registration, login, persisted JWT sessions and protected
+routing. Deck, card, training and statistics screens are in development.
 
 ## 🧱 Tech stack
 

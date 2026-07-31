@@ -28,9 +28,9 @@ in [`PLAN.md`](PLAN.md).
 
 ## P2 — frontend MVP
 
-- [ ] Shared API configuration and typed models.
-- [ ] Authentication service, token interceptor and route guard.
-- [ ] Login and registration UI.
+- [x] Shared API configuration and typed authentication models.
+- [x] Authentication service, token interceptor and route guard.
+- [x] Login and registration UI.
 - [ ] Deck list, create, edit and delete UI.
 - [ ] Card list, create, edit and delete UI.
 - [ ] Training card and rating UI.

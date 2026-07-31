@@ -55,7 +55,8 @@ Request DTO:
 
 Response DTO:
 {
-"token": "<jwt>",
+"message": "ok",
+"accessToken": "<jwt>",
 "tokenType": "Bearer"
 }
 

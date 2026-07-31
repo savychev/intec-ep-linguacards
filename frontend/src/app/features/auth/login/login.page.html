@@ -1,0 +1,76 @@
+<section class="auth-layout" aria-labelledby="login-title">
+  <div class="auth-intro">
+    <div>
+      <p class="eyebrow">Your personal language deck</p>
+      <h1>Make every new word stick.</h1>
+      <p class="auth-intro-copy">
+        Build focused decks, practise when cards are due, and keep your progress in one place.
+      </p>
+    </div>
+    <p class="language-sample">“Herhaling is de moeder van het leren.”</p>
+  </div>
+
+  <div class="auth-panel">
+    <h2 id="login-title">Welcome back</h2>
+    <p class="panel-copy">Sign in to continue with your decks.</p>
+
+    @if (registered) {
+      <p class="form-message success" role="status">
+        Your account is ready. Sign in with your new credentials.
+      </p>
+    }
+
+    @if (sessionExpired) {
+      <p class="form-message info" role="status">Your session ended. Sign in again to continue.</p>
+    }
+
+    @if (errorMessage(); as message) {
+      <p class="form-message error" role="alert">{{ message }}</p>
+    }
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          formControlName="email"
+          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+          [attr.aria-describedby]="
+            form.controls.email.invalid && form.controls.email.touched ? 'email-error' : null
+          "
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <p id="email-error" class="field-error">Enter a valid email address.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          formControlName="password"
+          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+          [attr.aria-describedby]="
+            form.controls.password.invalid && form.controls.password.touched
+              ? 'password-error'
+              : null
+          "
+        />
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <p id="password-error" class="field-error">Password must contain 6–72 characters.</p>
+        }
+      </div>
+
+      <button class="primary-button" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="auth-switch">New to LinguaCards? <a routerLink="/register">Create an account</a></p>
+  </div>
+</section>

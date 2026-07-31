@@ -19,7 +19,9 @@ POST /api/auth/login
 
 Response:
 {
-"token": "jwt-token"
+"message": "ok",
+"accessToken": "jwt-token",
+"tokenType": "Bearer"
 }
 
 ---

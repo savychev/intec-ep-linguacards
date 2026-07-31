@@ -10,9 +10,10 @@ milestone explicitly says so.
 
 - The full backend MVP is implemented: JWT authentication, personal decks and cards, training,
   review history and deck statistics.
-- The Angular application is a buildable scaffold; its feature pages are not implemented yet.
-- Backend integration tests cover authentication, data ownership, training and deck statistics;
-  the frontend still has two scaffold-level tests.
+- The Angular application has a working authentication flow; deck, card, training and statistics
+  screens are not implemented yet.
+- Backend integration tests cover authentication, data ownership, training and deck statistics.
+  Frontend tests cover the application shell, auth state, interceptor and route guards.
 - Flyway owns schema creation, with Hibernate validation guarding entity/schema drift.
 
 ## P0 — reproducible baseline (0.5–1 day)
@@ -42,8 +43,8 @@ Exit criterion: core API behaviour, data isolation and schema creation are prote
 
 ## P2 — usable Angular MVP (4–6 days)
 
-- [ ] Implement login and registration screens.
-- [ ] Add token handling, route protection and API error handling.
+- [x] Implement login and registration screens.
+- [x] Add token handling, route protection and authentication API error handling.
 - [ ] Implement deck and card management screens.
 - [ ] Implement the training flow and rating controls.
 - [ ] Implement deck statistics.
@@ -76,10 +77,10 @@ A task is done when:
 
 ## Main risks
 
-| Risk | Mitigation |
-|---|---|
-| Missing regression coverage | Add tests before expanding features. |
-| Cross-user data access | Derive ownership from JWT and test negative cases. |
-| Schema drift | Adopt Flyway, then use Hibernate validation. |
-| Frontend scope growth | Finish one end-to-end MVP workflow before visual extras. |
+| Risk                         | Mitigation                                                |
+| ---------------------------- | --------------------------------------------------------- |
+| Missing regression coverage  | Add tests before expanding features.                      |
+| Cross-user data access       | Derive ownership from JWT and test negative cases.        |
+| Schema drift                 | Adopt Flyway, then use Hibernate validation.              |
+| Frontend scope growth        | Finish one end-to-end MVP workflow before visual extras.  |
 | Insecure deployment defaults | Require external secrets and define a production profile. |
