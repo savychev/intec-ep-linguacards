@@ -32,7 +32,7 @@ in [`PLAN.md`](PLAN.md).
 - [x] Authentication service, token interceptor and route guard.
 - [x] Login and registration UI.
 - [x] Deck list, create, edit and delete UI.
-- [ ] Card list, create, edit and delete UI.
+- [x] Card list, create, edit and delete UI.
 - [ ] Training card and rating UI.
 - [ ] Statistics view.
 - [ ] Loading, empty and error states.

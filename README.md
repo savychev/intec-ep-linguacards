@@ -30,8 +30,8 @@ target language.
 - ⚠️ **Consistent API errors** — global exception handling with typed exceptions
 - 🩺 Health endpoint; DTOs for every request/response
 
-**Frontend:** Angular SPA with working authentication, protected routing and personal deck CRUD.
-Card, training and statistics screens are in development.
+**Frontend:** Angular SPA with working authentication, protected routing and personal deck/card
+CRUD. Training and statistics screens are in development.
 
 ## 🧱 Tech stack
 

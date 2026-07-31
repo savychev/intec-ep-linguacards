@@ -29,3 +29,21 @@ export interface DeckPayload {
   languageCode: string;
   isPrivate: boolean;
 }
+
+export interface Card {
+  id: number;
+  deckId: number;
+  term: string;
+  definition: string;
+  example: string | null;
+  cefr: string | null;
+  tags: string | null;
+}
+
+export interface CardPayload {
+  term: string;
+  definition: string;
+  example: string | null;
+  cefr: string | null;
+  tags: string | null;
+}

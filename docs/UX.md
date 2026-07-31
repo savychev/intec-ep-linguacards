@@ -71,17 +71,20 @@ Layout:
 - Cards section:
     - Button: "Add Card"
     - Table/List of cards:
-        - word
-        - status
+        - term
+        - definition
+        - optional CEFR level and tags
         - actions: Edit, Delete
 - Quick actions:
     - Button: "Start Training" -> /training?deckId={id}
     - Button: "View Stats" -> /stats?deckId={id}
 
 Add/Edit card form:
-- word (required)
+- term (required)
 - definition (required)
-- example sentence (required)
+- example sentence (optional)
+- CEFR level (optional)
+- tags (optional)
 
 ---
 
@@ -89,7 +92,7 @@ Add/Edit card form:
 Layout:
 - Header: "Training"
 - Card display:
-    - Word (big)
+    - Term (big)
     - Definition
     - Example sentence
 - Buttons:
@@ -101,8 +104,8 @@ Layout:
     - message: "No cards available for training."
 
 Flow:
-- On page load -> GET next card
-- On rating -> POST review -> GET next card again
+- On page load -> POST start training
+- On rating -> POST review -> POST next card
 
 ---
 
@@ -111,13 +114,9 @@ Elements:
 - Header: "Deck Statistics"
 - Cards count:
     - total
-    - NEW
-    - LEARNING
-    - REVIEW
-    - MASTERED
-- Review stats:
-    - total reviews
-    - reviews today
+    - new
+    - due now
+    - scheduled for later
 - Button: back to deck detail
 
 ---

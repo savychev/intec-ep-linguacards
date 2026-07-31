@@ -1,0 +1,211 @@
+<a class="back-link" routerLink="/decks">← Back to my decks</a>
+
+@if (loading()) {
+  <section class="loading-state" aria-live="polite">
+    <span class="spinner" aria-hidden="true"></span>
+    <p>Loading deck and cards…</p>
+  </section>
+} @else if (loadError(); as message) {
+  <section class="empty-state error-state" aria-labelledby="deck-error-title">
+    <span class="empty-icon" aria-hidden="true">!</span>
+    <h1 id="deck-error-title">This deck could not be opened</h1>
+    <p>{{ message }}</p>
+    <div class="state-actions">
+      <a class="secondary-button" routerLink="/decks">Back to decks</a>
+      <button class="primary-button" type="button" (click)="loadPage()">Try again</button>
+    </div>
+  </section>
+} @else if (deck(); as currentDeck) {
+  <header class="deck-header">
+    <div>
+      <div class="deck-meta">
+        <span class="language-badge">{{ currentDeck.languageCode.toUpperCase() }}</span>
+        @if (currentDeck.isPrivate) {
+          <span class="privacy-badge">Private</span>
+        }
+      </div>
+      <h1>{{ currentDeck.name }}</h1>
+      <p>{{ cards().length }} {{ cards().length === 1 ? 'card' : 'cards' }}</p>
+    </div>
+    <button class="primary-button" type="button" (click)="openCreate()">Add card</button>
+  </header>
+
+  @if (editorOpen()) {
+    <section class="editor" aria-labelledby="card-editor-title">
+      <div class="editor-heading">
+        <div>
+          <p class="eyebrow">{{ editingCard() ? 'Edit vocabulary' : 'New vocabulary' }}</p>
+          <h2 id="card-editor-title">{{ editingCard() ? 'Update card' : 'Add a card' }}</h2>
+        </div>
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Close card form"
+          (click)="closeEditor()"
+        >
+          ×
+        </button>
+      </div>
+
+      <p class="monolingual-note">
+        Write the definition and example in {{ currentDeck.languageCode.toUpperCase() }}. Avoid
+        translations.
+      </p>
+
+      @if (editorError(); as message) {
+        <p class="message error" role="alert">{{ message }}</p>
+      }
+
+      <form class="card-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="field">
+          <label for="card-term">Term</label>
+          <input
+            id="card-term"
+            type="text"
+            autocomplete="off"
+            autofocus
+            maxlength="200"
+            formControlName="term"
+            placeholder="gezellig"
+            [attr.aria-invalid]="form.controls.term.invalid && form.controls.term.touched"
+          />
+          @if (form.controls.term.invalid && form.controls.term.touched) {
+            <p class="field-error">Enter a term with no more than 200 characters.</p>
+          }
+        </div>
+
+        <div class="field field-definition">
+          <label for="card-definition">Definition</label>
+          <textarea
+            id="card-definition"
+            rows="4"
+            maxlength="2000"
+            formControlName="definition"
+            placeholder="A warm, pleasant feeling of being together…"
+            [attr.aria-invalid]="
+              form.controls.definition.invalid && form.controls.definition.touched
+            "
+          ></textarea>
+          @if (form.controls.definition.invalid && form.controls.definition.touched) {
+            <p class="field-error">Enter a definition with no more than 2,000 characters.</p>
+          }
+        </div>
+
+        <div class="field field-example">
+          <label for="card-example">Example sentence <span>(optional)</span></label>
+          <textarea
+            id="card-example"
+            rows="2"
+            maxlength="500"
+            formControlName="example"
+            placeholder="We hadden een gezellige avond."
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="card-cefr">CEFR <span>(optional)</span></label>
+          <select id="card-cefr" formControlName="cefr">
+            <option value="">Not specified</option>
+            @for (level of cefrOptions; track level) {
+              <option [value]="level">{{ level }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="card-tags">Tags <span>(optional)</span></label>
+          <input
+            id="card-tags"
+            type="text"
+            autocomplete="off"
+            maxlength="200"
+            formControlName="tags"
+            placeholder="social, adjective"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button class="secondary-button" type="button" (click)="closeEditor()">Cancel</button>
+          <button class="primary-button" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : editingCard() ? 'Save changes' : 'Add card' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (actionError(); as message) {
+    <p class="message error" role="alert">{{ message }}</p>
+  }
+
+  <section class="cards-section" aria-labelledby="cards-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Vocabulary</p>
+        <h2 id="cards-title">Cards</h2>
+      </div>
+    </div>
+
+    @if (cards().length === 0) {
+      <div class="empty-state compact" aria-labelledby="empty-cards-title">
+        <span class="empty-icon" aria-hidden="true">Aa</span>
+        <h3 id="empty-cards-title">This deck has no cards yet</h3>
+        <p>Add a term and explain it in the target language to begin.</p>
+        <button class="secondary-button" type="button" (click)="openCreate()">
+          Add the first card
+        </button>
+      </div>
+    } @else {
+      <ul class="card-list">
+        @for (card of cards(); track card.id) {
+          <li class="vocabulary-card">
+            <div class="card-topline">
+              <div>
+                <div class="card-badges">
+                  @if (card.cefr) {
+                    <span class="cefr-badge">{{ card.cefr }}</span>
+                  }
+                  @if (card.tags) {
+                    <span class="tags">{{ card.tags }}</span>
+                  }
+                </div>
+                <h3>{{ card.term }}</h3>
+              </div>
+            </div>
+
+            <p class="definition">{{ card.definition }}</p>
+            @if (card.example) {
+              <blockquote>{{ card.example }}</blockquote>
+            }
+
+            @if (confirmingDeleteId() === card.id) {
+              <div class="delete-confirmation" role="alert">
+                <p>
+                  Delete <strong>{{ card.term }}</strong> and its review history?
+                </p>
+                <div class="card-actions">
+                  <button class="text-action" type="button" (click)="cancelDelete()">Cancel</button>
+                  <button
+                    class="danger-action"
+                    type="button"
+                    [disabled]="deletingCardId() === card.id"
+                    (click)="deleteCard(card)"
+                  >
+                    {{ deletingCardId() === card.id ? 'Deleting…' : 'Delete permanently' }}
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="card-actions">
+                <button class="text-action" type="button" (click)="openEdit(card)">Edit</button>
+                <button class="danger-action" type="button" (click)="requestDelete(card)">
+                  Delete
+                </button>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

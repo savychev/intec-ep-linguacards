@@ -1,6 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { apiErrorMessage } from '../../../core/api/api-error';
@@ -9,7 +10,7 @@ import { DeckService } from '../data-access/deck.service';
 
 @Component({
   selector: 'app-decks-list-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './decks-list.page.html',
   styleUrl: './decks-list.page.css',
 })

@@ -23,6 +23,15 @@ export const routes: Routes = [
     title: 'Create account | LinguaCards',
   },
   {
+    path: 'decks/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/decks/deck-details/deck-details.page').then(
+        (module) => module.DeckDetailsPage,
+      ),
+    title: 'Deck | LinguaCards',
+  },
+  {
     path: 'decks',
     canActivate: [authGuard],
     loadComponent: () =>
