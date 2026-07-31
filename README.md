@@ -67,6 +67,7 @@ cd backend
 export DB_USERNAME=root
 export DB_PASSWORD=your-mysql-password
 export JWT_SECRET=replace-with-a-random-secret-of-at-least-32-characters
+export CORS_ALLOWED_ORIGINS=http://localhost:4200
 ./mvnw spring-boot:run
 ```
 
@@ -77,13 +78,15 @@ cd backend
 $env:DB_USERNAME = "root"
 $env:DB_PASSWORD = "your-mysql-password"
 $env:JWT_SECRET = "replace-with-a-random-secret-of-at-least-32-characters"
+$env:CORS_ALLOWED_ORIGINS = "http://localhost:4200"
 .\mvnw.cmd spring-boot:run
 ```
 
 The default database URL is `jdbc:mysql://localhost:3306/linguacards`. Override it with
 `DB_URL` when needed. Flyway creates or upgrades the schema at startup, and Hibernate validates
 that it still matches the JPA entities. `JWT_SECRET` intentionally has no default and must not
-be committed.
+be committed. `CORS_ALLOWED_ORIGINS` is a comma-separated allowlist for browser clients; it
+defaults only to the Angular development origin.
 
 For a local database previously created by Hibernate, back it up and recreate it before the
 first Flyway-managed startup. If the existing schema and `V1` have been manually verified as

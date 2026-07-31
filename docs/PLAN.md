@@ -35,8 +35,8 @@ database or secret.
 - [x] Add validation and error-contract tests for authentication requests.
 - [x] Introduce Flyway migrations for all current entities.
 - [x] Replace runtime `ddl-auto=update` with migration-based schema validation.
-- [ ] Review JWT configuration, CORS and production secrets.
-- [ ] Fix defects exposed by the tests and keep CI green.
+- [x] Review JWT configuration, CORS and production secrets.
+- [x] Fix defects exposed by the tests and keep CI green.
 
 Exit criterion: core API behaviour, data isolation and schema creation are protected by tests.
 
