@@ -10,6 +10,9 @@ spring:
 
 app:
   security:
+    cors:
+      allowed-origins:
+        - https://frontend.linguacards.test
     jwt:
       issuer: https://linguacards.test
       secret: "test-only-secret-with-at-least-32-bytes"

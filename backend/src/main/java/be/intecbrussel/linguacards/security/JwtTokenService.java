@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
@@ -28,11 +27,8 @@ public class JwtTokenService {
         Instant now = Instant.now();
         Instant expiresAt = now.plusSeconds(props.getExpirationMinutes() * 60);
 
-        // issuer должен быть URL
-        URI issuerUri = URI.create(props.getIssuer());
-
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer(issuerUri.toString())
+                .issuer(props.getIssuer().toString())
                 .issuedAt(now)
                 .expiresAt(expiresAt)
                 .subject(user.getEmail())
