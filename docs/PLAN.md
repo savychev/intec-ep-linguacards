@@ -21,17 +21,17 @@ milestone explicitly says so.
 - [x] Give backend tests an isolated H2 configuration and test-only JWT settings.
 - [x] Make the Unix Maven wrapper executable.
 - [x] Document required runtime configuration and correct the project status.
-- [ ] Confirm both CI jobs are green on the baseline pull request.
+- [x] Confirm both CI jobs are green on the baseline pull request.
 
 Exit criterion: a clean checkout can be verified automatically without a developer-specific
 database or secret.
 
 ## P1 — trustworthy backend (2–4 days)
 
-- [ ] Add authentication integration tests (register, login and protected endpoint).
-- [ ] Add owner-isolation tests for decks and cards.
+- [x] Add authentication integration tests (register, login and protected endpoint).
+- [x] Add owner-isolation tests for decks and cards.
 - [ ] Add training-flow and statistics integration tests.
-- [ ] Add validation and error-contract tests.
+- [x] Add validation and error-contract tests for authentication requests.
 - [ ] Introduce Flyway migrations for all current entities.
 - [ ] Replace runtime `ddl-auto=update` with migration-based schema validation.
 - [ ] Review JWT configuration, CORS and production secrets.
