@@ -10,15 +10,15 @@ in [`PLAN.md`](PLAN.md).
 - [x] Add deterministic backend test configuration.
 - [x] Correct the Maven wrapper executable bit.
 - [x] Align README and planning documents with the implementation.
-- [ ] Merge only after both CI jobs pass.
-- [ ] Archive the superseded `LinguaCards_v2` repository after the merge is verified.
+- [x] Merge only after both CI jobs pass.
+- [x] Archive the superseded `LinguaCards_v2` repository after the merge is verified.
 
 ## P1 — backend confidence
 
-- [ ] Authentication integration test: register → login → `/api/me`.
-- [ ] Duplicate-email and invalid-credentials tests.
-- [ ] Deck CRUD tests, including a second user's forbidden access.
-- [ ] Card CRUD and duplicate-term tests.
+- [x] Authentication integration test: register → login → `/api/me`.
+- [x] Duplicate-email and invalid-credentials tests.
+- [x] Deck CRUD tests, including a second user's forbidden access.
+- [x] Card CRUD and duplicate-term tests.
 - [ ] Training selection and rating-transition tests.
 - [ ] Deck statistics tests.
 - [ ] Validation and standard error-response tests.
