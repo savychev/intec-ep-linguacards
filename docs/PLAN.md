@@ -1,136 +1,84 @@
-# LinguaCards - Project Plan
+# LinguaCards delivery plan
 
-## 1. Milestones
+Last audited: 2026-07-31
 
-### Milestone 1 - Backend Foundation ✅ COMPLETED
-- [x] Spring Boot project initialized
-- [x] MySQL + Flyway configured
-- [x] User entity
-- [x] JWT authentication
-- [x] Register/Login endpoints
-- [x] Global exception handler
-- [x] Integration test for authentication
+This plan reflects the consolidated repository as it exists today. A checked item means that
+the code or infrastructure is present; it does not imply production readiness unless the
+milestone explicitly says so.
 
-Deliverable:
-- [x] Working auth flow
-- [x] Protected endpoint accessible with JWT
+## Current state
 
----
+- The full backend MVP is implemented: JWT authentication, personal decks and cards, training,
+  review history and deck statistics.
+- The Angular application is a buildable scaffold; its feature pages are not implemented yet.
+- Automated coverage is currently limited to a Spring context smoke test and two frontend tests.
+- Flyway is not configured. The application currently relies on Hibernate schema updates locally.
 
-### Milestone 2 - Deck & Card Management
-- Deck entity + CRUD
-- Owner validation
-- Card entity + CRUD
-- Monolingual rule (non-empty validation)
-- Integration test for owner isolation
+## P0 — reproducible baseline (0.5–1 day)
 
-Deliverable:
-- User can manage decks and cards securely
+- [x] Consolidate the useful repositories and their histories into this monorepo.
+- [x] Add GitHub Actions jobs for backend verification and frontend test/build.
+- [x] Give backend tests an isolated H2 configuration and test-only JWT settings.
+- [x] Make the Unix Maven wrapper executable.
+- [x] Document required runtime configuration and correct the project status.
+- [ ] Confirm both CI jobs are green on the baseline pull request.
 
----
+Exit criterion: a clean checkout can be verified automatically without a developer-specific
+database or secret.
 
-### Milestone 3 - Training Module
-- ReviewLog entity
-- Get next card logic
-- Submit rating logic
-- Status update mapping
-- Integration test for training flow
+## P1 — trustworthy backend (2–4 days)
 
-Deliverable:
-- User can train and change card statuses
+- [ ] Add authentication integration tests (register, login and protected endpoint).
+- [ ] Add owner-isolation tests for decks and cards.
+- [ ] Add training-flow and statistics integration tests.
+- [ ] Add validation and error-contract tests.
+- [ ] Introduce Flyway migrations for all current entities.
+- [ ] Replace runtime `ddl-auto=update` with migration-based schema validation.
+- [ ] Review JWT configuration, CORS and production secrets.
+- [ ] Fix defects exposed by the tests and keep CI green.
 
----
+Exit criterion: core API behaviour, data isolation and schema creation are protected by tests.
 
-### Milestone 4 - Statistics
-- Aggregation queries
-- Stats endpoint
-- Integration test for stats
+## P2 — usable Angular MVP (4–6 days)
 
-Deliverable:
-- Deck statistics working correctly
+- [ ] Implement login and registration screens.
+- [ ] Add token handling, route protection and API error handling.
+- [ ] Implement deck and card management screens.
+- [ ] Implement the training flow and rating controls.
+- [ ] Implement deck statistics.
+- [ ] Add focused component and service tests.
+- [ ] Provide clear loading, empty and error states.
 
----
+Exit criterion: a user can complete the main workflow from registration through training in the UI.
 
-### Milestone 5 - Frontend (Angular)
-- Auth pages
-- Deck management UI
-- Card management UI
-- Training page
-- Stats page
+## P3 — portfolio release (1–3 days)
 
-Deliverable:
-- End-to-end working application
+- [ ] Add Dockerfiles and Docker Compose for MySQL, backend and frontend.
+- [ ] Add one end-to-end happy-path test.
+- [ ] Add demo screenshots or a short GIF to the README.
+- [ ] Reconcile API, architecture and UML documentation with the final code.
+- [ ] Run dependency, security and repository hygiene checks.
+- [ ] Tag the first portfolio-ready release.
 
----
+Exit criterion: the project is easy to run, demonstrate and evaluate from a fresh checkout.
 
-## 2. Definition of Done (DoD)
+## Definition of done
 
-A feature is considered done when:
+A task is done when:
 
-- Code compiles
-- At least one integration or unit test exists (where applicable)
-- Validation annotations added
-- Proper HTTP status codes returned
-- Owner isolation enforced
-- Code reviewed (self-review)
-- No TODO comments left
-- Flyway migration added (if DB changed)
+- the relevant automated tests exist and pass;
+- both CI jobs remain green;
+- validation, HTTP status codes and owner isolation are handled where applicable;
+- database changes have an immutable migration;
+- no secret or machine-specific configuration is committed;
+- user-facing behaviour and setup changes are documented.
 
----
+## Main risks
 
-## 3. Risks & Mitigation
-
-### Risk 1 - JWT misconfiguration
-Impact:
-- All endpoints insecure or always 401
-
-Mitigation:
-- Write integration test for auth
-- Test manually with Postman
-
----
-
-### Risk 2 - Owner isolation bugs
-Impact:
-- Users can access others' data
-
-Mitigation:
-- Implement owner check in service layer
-- Add integration test for unauthorized access
-
----
-
-### Risk 3 - Flyway migration errors
-Impact:
-- App fails on startup
-
-Mitigation:
-- Keep migrations simple
-- Test migration on empty DB
-- Never edit old migrations (create new version)
-
----
-
-### Risk 4 - Overengineering
-Impact:
-- Time wasted, complex code
-
-Mitigation:
-- Stick strictly to MVP scope
-- Avoid premature optimization
-
----
-
-## 4. Timeline (example for 3-4 weeks)
-
-Week 1:
-- Backend foundation
-
-Week 2:
-- Deck + Card management
-
-Week 3:
-- Training + Stats
-
-Week 4:
-- Frontend + polishing + tests
+| Risk | Mitigation |
+|---|---|
+| Missing regression coverage | Add tests before expanding features. |
+| Cross-user data access | Derive ownership from JWT and test negative cases. |
+| Schema drift | Adopt Flyway, then use Hibernate validation. |
+| Frontend scope growth | Finish one end-to-end MVP workflow before visual extras. |
+| Insecure deployment defaults | Require external secrets and define a production profile. |

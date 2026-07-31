@@ -1,6 +1,7 @@
 # 🃏 LinguaCards
 
 <p>
+  <a href="https://github.com/savychev/intec-ep-linguacards/actions/workflows/ci.yml"><img src="https://github.com/savychev/intec-ep-linguacards/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white" alt="Java 17">
   <img src="https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 4.0.3">
   <img src="https://img.shields.io/badge/Spring_Security-JWT-6DB33F?logo=springsecurity&logoColor=white" alt="Spring Security JWT">
@@ -55,7 +56,7 @@ docs/       PRD · scope · architecture · ERD · UML · user stories · code r
 
 ## ▶️ Getting started
 
-**Backend** — requires Java 17+ and MySQL:
+**Backend** — requires Java 17+, MySQL 8+ and a JWT signing secret:
 
 ```sql
 CREATE DATABASE linguacards;
@@ -63,8 +64,24 @@ CREATE DATABASE linguacards;
 
 ```bash
 cd backend
-./mvnw spring-boot:run     # Windows: .\mvnw.cmd spring-boot:run
+export DB_USERNAME=root
+export DB_PASSWORD=your-mysql-password
+export JWT_SECRET=replace-with-a-random-secret-of-at-least-32-characters
+./mvnw spring-boot:run
 ```
+
+PowerShell:
+
+```powershell
+cd backend
+$env:DB_USERNAME = "root"
+$env:DB_PASSWORD = "your-mysql-password"
+$env:JWT_SECRET = "replace-with-a-random-secret-of-at-least-32-characters"
+.\mvnw.cmd spring-boot:run
+```
+
+The default database URL is `jdbc:mysql://localhost:3306/linguacards`. Override it with
+`DB_URL` when needed. `JWT_SECRET` intentionally has no default and must not be committed.
 
 **Frontend** — requires Node.js:
 
@@ -77,11 +94,27 @@ npm start
 > ⚠️ Configuration values in `application.yml` are development defaults —
 > use environment variables for anything beyond local development.
 
+## 🧪 Verification
+
+```bash
+cd backend
+./mvnw verify
+
+cd ../frontend
+npm ci
+npm test -- --watch=false
+npm run build
+```
+
+Backend tests use an isolated H2 database and a test-only JWT key. GitHub Actions runs the
+backend and frontend verification jobs for every pull request and every push to `main`.
+
 ## 📚 Documentation
 
 Design & planning docs in [`docs/`](docs): PRD, scope, architecture, domain model, ERD,
 user stories, UX notes, UML diagrams (PlantUML) and backend code reviews under
-[`docs/analysis/`](docs/analysis).
+[`docs/analysis/`](docs/analysis). The current delivery plan is tracked in
+[`docs/PLAN.md`](docs/PLAN.md), with actionable work in [`docs/TASKS.md`](docs/TASKS.md).
 
 ## 📜 History
 
