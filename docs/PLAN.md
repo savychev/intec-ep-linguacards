@@ -11,8 +11,9 @@ milestone explicitly says so.
 - The full backend MVP is implemented: JWT authentication, personal decks and cards, training,
   review history and deck statistics.
 - The Angular application is a buildable scaffold; its feature pages are not implemented yet.
-- Automated coverage is currently limited to a Spring context smoke test and two frontend tests.
-- Flyway is not configured. The application currently relies on Hibernate schema updates locally.
+- Backend integration tests cover authentication, data ownership, training and deck statistics;
+  the frontend still has two scaffold-level tests.
+- Flyway owns schema creation, with Hibernate validation guarding entity/schema drift.
 
 ## P0 — reproducible baseline (0.5–1 day)
 
@@ -32,8 +33,8 @@ database or secret.
 - [x] Add owner-isolation tests for decks and cards.
 - [x] Add training-flow and statistics integration tests.
 - [x] Add validation and error-contract tests for authentication requests.
-- [ ] Introduce Flyway migrations for all current entities.
-- [ ] Replace runtime `ddl-auto=update` with migration-based schema validation.
+- [x] Introduce Flyway migrations for all current entities.
+- [x] Replace runtime `ddl-auto=update` with migration-based schema validation.
 - [ ] Review JWT configuration, CORS and production secrets.
 - [ ] Fix defects exposed by the tests and keep CI green.
 

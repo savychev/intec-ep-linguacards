@@ -22,8 +22,8 @@ in [`PLAN.md`](PLAN.md).
 - [x] Training selection and rating-transition tests.
 - [x] Deck statistics tests.
 - [ ] Validation and standard error-response tests.
-- [ ] Flyway dependency and complete `V1` schema migration.
-- [ ] Production profile with external secrets and `ddl-auto=validate`.
+- [x] Flyway dependency and complete `V1` schema migration.
+- [x] Runtime configuration with external secrets and `ddl-auto=validate`.
 - [ ] JWT, CORS and authorization review.
 
 ## P2 — frontend MVP

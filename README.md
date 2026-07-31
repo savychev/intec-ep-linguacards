@@ -36,7 +36,7 @@ features — in development.
 ## 🧱 Tech stack
 
 Java 17 · Spring Boot 4.0.3 · Spring Web · Spring Security (JWT) · Spring Data JPA ·
-MySQL · Bean Validation · JUnit · Maven | Angular · TypeScript
+MySQL · Flyway · Bean Validation · JUnit · Maven | Angular · TypeScript
 
 ## 📂 Structure
 
@@ -81,7 +81,14 @@ $env:JWT_SECRET = "replace-with-a-random-secret-of-at-least-32-characters"
 ```
 
 The default database URL is `jdbc:mysql://localhost:3306/linguacards`. Override it with
-`DB_URL` when needed. `JWT_SECRET` intentionally has no default and must not be committed.
+`DB_URL` when needed. Flyway creates or upgrades the schema at startup, and Hibernate validates
+that it still matches the JPA entities. `JWT_SECRET` intentionally has no default and must not
+be committed.
+
+For a local database previously created by Hibernate, back it up and recreate it before the
+first Flyway-managed startup. If the existing schema and `V1` have been manually verified as
+equivalent, Flyway can instead be baselined explicitly; do not enable baselining blindly because
+it skips applying the initial migration.
 
 **Frontend** — requires Node.js:
 
@@ -106,8 +113,9 @@ npm test -- --watch=false
 npm run build
 ```
 
-Backend tests use an isolated H2 database and a test-only JWT key. GitHub Actions runs the
-backend and frontend verification jobs for every pull request and every push to `main`.
+Backend tests apply the H2 Flyway migration, validate it against the JPA entities and use a
+test-only JWT key. GitHub Actions runs the backend and frontend verification jobs for every pull
+request and every push to `main`.
 
 ## 📚 Documentation
 
