@@ -1,7 +1,10 @@
 package be.intecbrussel.linguacards;
 
+import be.intecbrussel.linguacards.repository.ReviewLogRepository;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -11,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -28,6 +32,9 @@ class CoreApiIntegrationTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ReviewLogRepository reviewLogRepository;
 
     @Test
     void registrationLoginAndMeEndpointWorkTogether() throws Exception {
@@ -187,6 +194,111 @@ class CoreApiIntegrationTests {
                 .andExpect(jsonPath("$").isEmpty());
     }
 
+    @Test
+    void trainingFlowUpdatesScheduleAndStatistics() throws Exception {
+        String token = registerAndLogin("training@example.com");
+        Long deckId = createDeck(token, "French");
+
+        mockMvc.perform(post("/api/decks/{deckId}/train/start", deckId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hasCard").value(false))
+                .andExpect(jsonPath("$.reason").value("EMPTY_DECK"))
+                .andExpect(jsonPath("$.card").doesNotExist());
+
+        Long cardId = createCard(token, deckId, "pourtant");
+
+        mockMvc.perform(get("/api/decks/{deckId}/stats", deckId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCards").value(1))
+                .andExpect(jsonPath("$.newCards").value(1))
+                .andExpect(jsonPath("$.dueCards").value(0))
+                .andExpect(jsonPath("$.scheduledCards").value(0));
+
+        mockMvc.perform(post("/api/decks/{deckId}/train/start", deckId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hasCard").value(true))
+                .andExpect(jsonPath("$.reason").doesNotExist())
+                .andExpect(jsonPath("$.card.cardId").value(cardId.intValue()))
+                .andExpect(jsonPath("$.card.intervalDays").value(0));
+
+        mockMvc.perform(post("/api/cards/{cardId}/review", cardId)
+                        .header("Authorization", bearer(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reviewJson("GOOD")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cardId").value(cardId.intValue()))
+                .andExpect(jsonPath("$.intervalDays").value(7))
+                .andExpect(jsonPath("$.lastReviewedAt").isNotEmpty())
+                .andExpect(jsonPath("$.nextReviewAt").isNotEmpty());
+
+        assertThat(reviewLogRepository.count()).isEqualTo(1);
+
+        mockMvc.perform(get("/api/decks/{deckId}/stats", deckId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCards").value(1))
+                .andExpect(jsonPath("$.newCards").value(0))
+                .andExpect(jsonPath("$.dueCards").value(0))
+                .andExpect(jsonPath("$.scheduledCards").value(1));
+
+        mockMvc.perform(post("/api/decks/{deckId}/train/next", deckId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hasCard").value(false))
+                .andExpect(jsonPath("$.reason").value("NO_CARDS_TO_TRAIN"))
+                .andExpect(jsonPath("$.card").doesNotExist());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "AGAIN, 1",
+            "HARD, 3",
+            "GOOD, 7",
+            "EASY, 14"
+    })
+    void reviewRatingSetsExpectedInterval(String rating, int expectedDays) throws Exception {
+        String token = registerAndLogin("rating-" + rating.toLowerCase() + "@example.com");
+        Long deckId = createDeck(token, "Rating deck");
+        Long cardId = createCard(token, deckId, "rating " + rating.toLowerCase());
+
+        mockMvc.perform(post("/api/cards/{cardId}/review", cardId)
+                        .header("Authorization", bearer(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reviewJson(rating)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.intervalDays").value(expectedDays));
+    }
+
+    @Test
+    void trainingAndStatisticsAreOwnerIsolated() throws Exception {
+        String ownerToken = registerAndLogin("training-owner@example.com");
+        String otherToken = registerAndLogin("training-other@example.com");
+        Long deckId = createDeck(ownerToken, "Private training");
+        Long cardId = createCard(ownerToken, deckId, "private card");
+
+        mockMvc.perform(post("/api/decks/{deckId}/train/start", deckId)
+                        .header("Authorization", bearer(otherToken)))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(post("/api/cards/{cardId}/review", cardId)
+                        .header("Authorization", bearer(otherToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reviewJson("GOOD")))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/api/decks/{deckId}/stats", deckId)
+                        .header("Authorization", bearer(otherToken)))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(post("/api/decks/{deckId}/train/start", deckId)
+                        .header("Authorization", bearer(ownerToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.card.cardId").value(cardId.intValue()));
+    }
+
     private String registerAndLogin(String email) throws Exception {
         register(email);
         return login(email, PASSWORD);
@@ -255,6 +367,12 @@ class CoreApiIntegrationTests {
         return """
                 {"term":"%s","definition":"A clear monolingual definition"}
                 """.formatted(term);
+    }
+
+    private String reviewJson(String rating) {
+        return """
+                {"rating":"%s"}
+                """.formatted(rating);
     }
 
     private String bearer(String token) {

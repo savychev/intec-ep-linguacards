@@ -30,7 +30,7 @@ database or secret.
 
 - [x] Add authentication integration tests (register, login and protected endpoint).
 - [x] Add owner-isolation tests for decks and cards.
-- [ ] Add training-flow and statistics integration tests.
+- [x] Add training-flow and statistics integration tests.
 - [x] Add validation and error-contract tests for authentication requests.
 - [ ] Introduce Flyway migrations for all current entities.
 - [ ] Replace runtime `ddl-auto=update` with migration-based schema validation.

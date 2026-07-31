@@ -19,8 +19,8 @@ in [`PLAN.md`](PLAN.md).
 - [x] Duplicate-email and invalid-credentials tests.
 - [x] Deck CRUD tests, including a second user's forbidden access.
 - [x] Card CRUD and duplicate-term tests.
-- [ ] Training selection and rating-transition tests.
-- [ ] Deck statistics tests.
+- [x] Training selection and rating-transition tests.
+- [x] Deck statistics tests.
 - [ ] Validation and standard error-response tests.
 - [ ] Flyway dependency and complete `V1` schema migration.
 - [ ] Production profile with external secrets and `ddl-auto=validate`.
