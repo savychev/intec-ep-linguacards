@@ -1,64 +1,50 @@
+# LinguaCards task backlog
 
-# LinguaCards Development Tasks
+The priority order below is the working sequence. Detailed milestone goals and exit criteria are
+in [`PLAN.md`](PLAN.md).
 
-## Phase 1 - Backend Foundation
+## P0 — baseline
 
-1. Initialize Spring Boot project
-2. Configure MySQL
-3. Configure Flyway
-4. Configure Security
-5. Implement JWT
-6. Implement User entity
-7. Register + Login endpoints
-8. GlobalExceptionHandler
-9. Integration test for authentication
+- [x] Preserve the histories of the consolidated repositories.
+- [x] Add backend and frontend CI jobs.
+- [x] Add deterministic backend test configuration.
+- [x] Correct the Maven wrapper executable bit.
+- [x] Align README and planning documents with the implementation.
+- [ ] Merge only after both CI jobs pass.
+- [ ] Archive the superseded `LinguaCards_v2` repository after the merge is verified.
 
----
+## P1 — backend confidence
 
-## Phase 2 - Deck Management
+- [ ] Authentication integration test: register → login → `/api/me`.
+- [ ] Duplicate-email and invalid-credentials tests.
+- [ ] Deck CRUD tests, including a second user's forbidden access.
+- [ ] Card CRUD and duplicate-term tests.
+- [ ] Training selection and rating-transition tests.
+- [ ] Deck statistics tests.
+- [ ] Validation and standard error-response tests.
+- [ ] Flyway dependency and complete `V1` schema migration.
+- [ ] Production profile with external secrets and `ddl-auto=validate`.
+- [ ] JWT, CORS and authorization review.
 
-10. Implement Deck entity
-11. Deck CRUD
-12. Owner validation
+## P2 — frontend MVP
 
----
+- [ ] Shared API configuration and typed models.
+- [ ] Authentication service, token interceptor and route guard.
+- [ ] Login and registration UI.
+- [ ] Deck list, create, edit and delete UI.
+- [ ] Card list, create, edit and delete UI.
+- [ ] Training card and rating UI.
+- [ ] Statistics view.
+- [ ] Loading, empty and error states.
+- [ ] Component and service tests for the core workflow.
 
-## Phase 3 - Card Management
+## P3 — release polish
 
-13. Implement Card entity
-14. Card CRUD
-15. Monolingual validation rule
-
----
-
-## Phase 4 - Training
-
-16. Implement ReviewLog entity
-17. Get next card logic
-18. Rating submission
-19. Status update logic
-
----
-
-## Phase 5 - Statistics
-
-20. Aggregation queries
-21. Stats endpoint
-
----
-
-## Phase 6 - Frontend (Angular)
-
-22. Auth pages
-23. Deck pages
-24. Card pages
-25. Training page
-26. Stats page
-
----
-
-## Final
-
-27. End-to-end testing
-28. Documentation cleanup
-29. Docker (optional)
+- [ ] Dockerfile for backend.
+- [ ] Dockerfile for frontend.
+- [ ] Docker Compose with MySQL health check.
+- [ ] Browser-level happy-path test.
+- [ ] README screenshots and concise demo instructions.
+- [ ] Final documentation and UML reconciliation.
+- [ ] Dependency and security scan.
+- [ ] Portfolio release tag.
