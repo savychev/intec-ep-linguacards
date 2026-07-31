@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
@@ -30,6 +32,21 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             ApiSecurityErrorWriter errorWriter) throws Exception {
+        AuthenticationEntryPoint authenticationEntryPoint =
+                (request, response, exception) -> errorWriter.write(
+                        request,
+                        response,
+                        HttpStatus.UNAUTHORIZED,
+                        "Authentication is required"
+                );
+        AccessDeniedHandler accessDeniedHandler =
+                (request, response, exception) -> errorWriter.write(
+                        request,
+                        response,
+                        HttpStatus.FORBIDDEN,
+                        "Access is denied"
+                );
+
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
@@ -40,19 +57,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, exception) -> errorWriter.write(
-                                request,
-                                response,
-                                HttpStatus.UNAUTHORIZED,
-                                "Authentication is required"
-                        ))
-                        .accessDeniedHandler((request, response, exception) -> errorWriter.write(
-                                request,
-                                response,
-                                HttpStatus.FORBIDDEN,
-                                "Access is denied"
-                        )))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .build();
     }
 
