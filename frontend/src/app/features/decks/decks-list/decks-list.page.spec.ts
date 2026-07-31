@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { Deck } from '../../../core/api/api.models';
@@ -36,7 +37,7 @@ describe('DecksListPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [DecksListPage],
-      providers: [{ provide: DeckService, useValue: service }],
+      providers: [provideRouter([]), { provide: DeckService, useValue: service }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DecksListPage);
