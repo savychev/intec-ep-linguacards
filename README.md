@@ -2,7 +2,7 @@
 
 <p>
   <img src="https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white" alt="Java 17">
-  <img src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 3">
+  <img src="https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 4.0.3">
   <img src="https://img.shields.io/badge/Spring_Security-JWT-6DB33F?logo=springsecurity&logoColor=white" alt="Spring Security JWT">
   <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white" alt="MySQL">
   <img src="https://img.shields.io/badge/Angular-DD0031?logo=angular&logoColor=white" alt="Angular">
@@ -34,7 +34,7 @@ features — in development.
 
 ## 🧱 Tech stack
 
-Java 17 · Spring Boot 3 · Spring Web · Spring Security (JWT) · Spring Data JPA ·
+Java 17 · Spring Boot 4.0.3 · Spring Web · Spring Security (JWT) · Spring Data JPA ·
 MySQL · Bean Validation · JUnit · Maven | Angular · TypeScript
 
 ## 📂 Structure
