@@ -74,8 +74,8 @@ Response DTO (list):
 {
 "id": 1,
 "name": "Dutch A2",
-"language": "NL",
-"createdAt": "2026-02-16T20:00:00"
+"languageCode": "nl",
+"isPrivate": true
 }
 ]
 
@@ -83,15 +83,16 @@ Response DTO (list):
 Request DTO:
 {
 "name": "Dutch A2",
-"language": "NL"
+"languageCode": "nl",
+"isPrivate": true
 }
 
 Response DTO:
 {
 "id": 1,
 "name": "Dutch A2",
-"language": "NL",
-"createdAt": "2026-02-16T20:00:00"
+"languageCode": "nl",
+"isPrivate": true
 }
 
 ### GET /api/decks/{id}
@@ -101,7 +102,8 @@ Returns deck if owned.
 Request DTO:
 {
 "name": "Dutch A2 Updated",
-"language": "NL"
+"languageCode": "nl",
+"isPrivate": true
 }
 
 ### DELETE /api/decks/{id}

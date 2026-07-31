@@ -31,7 +31,7 @@ in [`PLAN.md`](PLAN.md).
 - [x] Shared API configuration and typed authentication models.
 - [x] Authentication service, token interceptor and route guard.
 - [x] Login and registration UI.
-- [ ] Deck list, create, edit and delete UI.
+- [x] Deck list, create, edit and delete UI.
 - [ ] Card list, create, edit and delete UI.
 - [ ] Training card and rating UI.
 - [ ] Statistics view.

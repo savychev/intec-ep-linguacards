@@ -1,87 +1,186 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
+
+import { apiErrorMessage } from '../../../core/api/api-error';
+import { Deck, DeckPayload } from '../../../core/api/api.models';
+import { DeckService } from '../data-access/deck.service';
 
 @Component({
   selector: 'app-decks-list-page',
-  template: `
-    <section class="page-heading">
-      <p class="eyebrow">Your library</p>
-      <h1>My decks</h1>
-      <p>Your account is connected. Deck management is the next LinguaCards milestone.</p>
-    </section>
-
-    <section class="empty-state" aria-labelledby="empty-title">
-      <span class="empty-icon" aria-hidden="true">Aa</span>
-      <h2 id="empty-title">Ready for your first deck</h2>
-      <p>Soon you will be able to create a deck and add your own vocabulary cards here.</p>
-    </section>
-  `,
-  styles: `
-    :host {
-      display: grid;
-      gap: 2.5rem;
-    }
-
-    .page-heading {
-      max-width: 42rem;
-    }
-
-    .eyebrow {
-      margin: 0 0 0.65rem;
-      color: var(--color-primary);
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-    }
-
-    h1,
-    h2 {
-      font-family: var(--font-display);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(2.7rem, 7vw, 4.8rem);
-      letter-spacing: -0.04em;
-    }
-
-    .page-heading > p:last-child,
-    .empty-state p {
-      color: var(--color-muted);
-      line-height: 1.65;
-    }
-
-    .empty-state {
-      display: grid;
-      justify-items: center;
-      padding: clamp(2.5rem, 8vw, 5rem) 1.5rem;
-      border: 1px dashed #aeb9b4;
-      border-radius: 1.25rem;
-      background: rgb(255 253 248 / 70%);
-      text-align: center;
-    }
-
-    .empty-icon {
-      display: grid;
-      width: 4.5rem;
-      height: 4.5rem;
-      place-items: center;
-      border-radius: 1rem;
-      background: var(--color-primary-soft);
-      color: var(--color-primary-dark);
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-    }
-
-    .empty-state h2 {
-      margin: 1.25rem 0 0;
-      font-size: 1.75rem;
-    }
-
-    .empty-state p {
-      max-width: 36rem;
-      margin-bottom: 0;
-    }
-  `,
+  imports: [ReactiveFormsModule],
+  templateUrl: './decks-list.page.html',
+  styleUrl: './decks-list.page.css',
 })
-export class DecksListPage {}
+export class DecksListPage implements OnInit {
+  private readonly deckService = inject(DeckService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly formBuilder = inject(FormBuilder);
+
+  protected readonly decks = signal<Deck[]>([]);
+  protected readonly loading = signal(true);
+  protected readonly loadError = signal<string | null>(null);
+  protected readonly editorOpen = signal(false);
+  protected readonly editingDeck = signal<Deck | null>(null);
+  protected readonly saving = signal(false);
+  protected readonly editorError = signal<string | null>(null);
+  protected readonly confirmingDeleteId = signal<number | null>(null);
+  protected readonly deletingDeckId = signal<number | null>(null);
+  protected readonly actionError = signal<string | null>(null);
+
+  protected readonly languageSuggestions = [
+    { code: 'nl', name: 'Dutch' },
+    { code: 'en', name: 'English' },
+    { code: 'fr', name: 'French' },
+    { code: 'pt', name: 'Portuguese' },
+    { code: 'de', name: 'German' },
+    { code: 'es', name: 'Spanish' },
+    { code: 'uk', name: 'Ukrainian' },
+    { code: 'ru', name: 'Russian' },
+  ];
+
+  protected readonly form = this.formBuilder.nonNullable.group({
+    name: ['', [Validators.required, Validators.pattern(/.*\S.*/), Validators.maxLength(120)]],
+    languageCode: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/.*\S.*/),
+        Validators.minLength(2),
+        Validators.maxLength(10),
+      ],
+    ],
+  });
+
+  ngOnInit(): void {
+    this.loadDecks();
+  }
+
+  protected loadDecks(): void {
+    this.loading.set(true);
+    this.loadError.set(null);
+
+    this.deckService
+      .list()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe({
+        next: (decks) => this.decks.set(decks),
+        error: (error: unknown) =>
+          this.loadError.set(apiErrorMessage(error, 'Unable to load your decks.')),
+      });
+  }
+
+  protected openCreate(): void {
+    this.editingDeck.set(null);
+    this.editorError.set(null);
+    this.form.reset({ name: '', languageCode: '' });
+    this.editorOpen.set(true);
+  }
+
+  protected openEdit(deck: Deck): void {
+    this.editingDeck.set(deck);
+    this.editorError.set(null);
+    this.form.reset({ name: deck.name, languageCode: deck.languageCode });
+    this.editorOpen.set(true);
+  }
+
+  protected closeEditor(): void {
+    if (this.saving()) {
+      return;
+    }
+
+    this.resetEditor();
+  }
+
+  private resetEditor(): void {
+    this.editorOpen.set(false);
+    this.editingDeck.set(null);
+    this.editorError.set(null);
+  }
+
+  protected save(): void {
+    if (this.form.invalid || this.saving()) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const rawValue = this.form.getRawValue();
+    const payload: DeckPayload = {
+      name: rawValue.name.trim(),
+      languageCode: rawValue.languageCode.trim().toLowerCase(),
+      isPrivate: true,
+    };
+
+    if (!payload.name || !payload.languageCode) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const currentDeck = this.editingDeck();
+    const request = currentDeck
+      ? this.deckService.update(currentDeck.id, payload)
+      : this.deckService.create(payload);
+
+    this.saving.set(true);
+    this.editorError.set(null);
+
+    request
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
+      .subscribe({
+        next: (savedDeck) => {
+          this.decks.update((decks) =>
+            currentDeck
+              ? decks.map((deck) => (deck.id === savedDeck.id ? savedDeck : deck))
+              : [...decks, savedDeck],
+          );
+          this.resetEditor();
+        },
+        error: (error: unknown) =>
+          this.editorError.set(apiErrorMessage(error, 'Unable to save this deck.')),
+      });
+  }
+
+  protected requestDelete(deck: Deck): void {
+    this.actionError.set(null);
+    this.confirmingDeleteId.set(deck.id);
+  }
+
+  protected cancelDelete(): void {
+    if (this.deletingDeckId() === null) {
+      this.confirmingDeleteId.set(null);
+    }
+  }
+
+  protected deleteDeck(deck: Deck): void {
+    if (this.deletingDeckId() !== null) {
+      return;
+    }
+
+    this.deletingDeckId.set(deck.id);
+    this.actionError.set(null);
+
+    this.deckService
+      .delete(deck.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.deletingDeckId.set(null)),
+      )
+      .subscribe({
+        next: () => {
+          this.decks.update((decks) => decks.filter((item) => item.id !== deck.id));
+          this.confirmingDeleteId.set(null);
+        },
+        error: (error: unknown) => {
+          this.confirmingDeleteId.set(null);
+          this.actionError.set(apiErrorMessage(error, `Unable to delete “${deck.name}”.`));
+        },
+      });
+  }
+}

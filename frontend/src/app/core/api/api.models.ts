@@ -16,3 +16,16 @@ export interface ApiErrorResponse {
   message: string;
   path: string;
 }
+
+export interface Deck {
+  id: number;
+  name: string;
+  languageCode: string;
+  isPrivate: boolean;
+}
+
+export interface DeckPayload {
+  name: string;
+  languageCode: string;
+  isPrivate: boolean;
+}
