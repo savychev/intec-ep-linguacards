@@ -1,0 +1,10 @@
+.git
+.idea
+.mvn
+target
+*.iml
+*.log
+Dockerfile*
+HELP.md
+http_tests
+src/test

@@ -10,7 +10,7 @@
 </p>
 
 A **monolingual flashcard** web application for vocabulary learning — final project
-(*eindproject*) for the Intec **Java Developer EE** programme. Definitions and examples stay
+(_eindproject_) for the Intec **Java Developer EE** programme. Definitions and examples stay
 in the **same language** as the deck (no translations), to train direct thinking in the
 target language.
 
@@ -56,6 +56,24 @@ docs/       PRD · scope · architecture · ERD · UML · user stories · code r
 
 ## ▶️ Getting started
 
+### Docker Compose (recommended)
+
+The complete application can be built and started with Docker Compose:
+
+```bash
+cp .env.example .env
+# Fill DB_PASSWORD, MYSQL_ROOT_PASSWORD and JWT_SECRET in .env.
+# A suitable JWT value can be generated with: openssl rand -hex 32
+docker compose up --build --wait
+```
+
+Open <http://localhost:4200>. The Angular container serves the SPA and proxies `/api` to the
+backend; MySQL data is kept in the named `mysql-data` volume. The backend remains available on
+<http://localhost:8080> for direct API access. Stop the application with
+`docker compose down`; add `--volumes` only when you intentionally want to delete local data.
+
+### Manual development setup
+
 **Backend** — requires Java 17+, MySQL 8+ and a JWT signing secret:
 
 ```sql
@@ -93,7 +111,8 @@ first Flyway-managed startup. If the existing schema and `V1` have been manually
 equivalent, Flyway can instead be baselined explicitly; do not enable baselining blindly because
 it skips applying the initial migration.
 
-**Frontend** — requires Node.js:
+**Frontend** — requires Node.js. The development configuration calls the backend at
+`http://localhost:8080`:
 
 ```bash
 cd frontend
@@ -117,8 +136,8 @@ npm run build
 ```
 
 Backend tests apply the H2 Flyway migration, validate it against the JPA entities and use a
-test-only JWT key. GitHub Actions runs the backend and frontend verification jobs for every pull
-request and every push to `main`.
+test-only JWT key. GitHub Actions runs backend verification, frontend test/build and a complete
+container-stack smoke test for every pull request and every push to `main`.
 
 ## 📚 Documentation
 

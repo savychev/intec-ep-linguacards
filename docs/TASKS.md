@@ -40,9 +40,9 @@ in [`PLAN.md`](PLAN.md).
 
 ## P3 — release polish
 
-- [ ] Dockerfile for backend.
-- [ ] Dockerfile for frontend.
-- [ ] Docker Compose with MySQL health check.
+- [x] Dockerfile for backend.
+- [x] Dockerfile for frontend.
+- [x] Docker Compose with MySQL health check.
 - [ ] Browser-level happy-path test.
 - [ ] README screenshots and concise demo instructions.
 - [ ] Final documentation and UML reconciliation.

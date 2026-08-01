@@ -23,6 +23,7 @@ application-local.yml
 application-local.properties
 .env
 .env.*
+!.env.example
 
 # Node / Angular
 node_modules/
