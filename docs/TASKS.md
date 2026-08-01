@@ -47,4 +47,4 @@ in [`PLAN.md`](PLAN.md).
 - [x] README screenshots captured by the browser happy path and concise demo instructions.
 - [x] Final documentation and UML reconciliation.
 - [x] Dependency and security scan.
-- [ ] Portfolio release tag.
+- [x] Portfolio release tag.

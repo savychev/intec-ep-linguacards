@@ -18,7 +18,7 @@ RUN addgroup -S -g 10001 linguacards \
 WORKDIR /app
 
 COPY --from=build \
-    /workspace/target/linguacards-0.0.1-SNAPSHOT.jar \
+    /workspace/target/linguacards.jar \
     /app/linguacards.jar
 
 USER 10001:10001
