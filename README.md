@@ -135,9 +135,18 @@ npm test -- --watch=false
 npm run build
 ```
 
+With the Compose stack running, execute the browser-level happy path with:
+
+```bash
+cd frontend
+npx playwright install --with-deps chromium
+npm run e2e
+```
+
 Backend tests apply the H2 Flyway migration, validate it against the JPA entities and use a
-test-only JWT key. GitHub Actions runs backend verification, frontend test/build and a complete
-container-stack smoke test for every pull request and every push to `main`.
+test-only JWT key. GitHub Actions runs backend verification, frontend test/build, a complete
+container-stack smoke test and the Playwright happy path for every pull request and every push to
+`main`.
 
 ## 📚 Documentation
 

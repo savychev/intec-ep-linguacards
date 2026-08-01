@@ -58,7 +58,7 @@ inspect the resulting deck schedule in the UI.
 ## P3 — portfolio release (1–3 days)
 
 - [x] Add Dockerfiles and Docker Compose for MySQL, backend and frontend.
-- [ ] Add one end-to-end happy-path test.
+- [x] Add one end-to-end happy-path test.
 - [ ] Add demo screenshots or a short GIF to the README.
 - [ ] Reconcile API, architecture and UML documentation with the final code.
 - [ ] Run dependency, security and repository hygiene checks.
