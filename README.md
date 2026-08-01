@@ -2,6 +2,7 @@
 
 <p>
   <a href="https://github.com/savychev/intec-ep-linguacards/actions/workflows/ci.yml"><img src="https://github.com/savychev/intec-ep-linguacards/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/savychev/intec-ep-linguacards/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/release-v1.0.0-0A7F5A" alt="Release v1.0.0"></a>
   <img src="https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white" alt="Java 17">
   <img src="https://img.shields.io/badge/Spring_Boot-4.0.7-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 4.0.7">
   <img src="https://img.shields.io/badge/Spring_Security-JWT-6DB33F?logo=springsecurity&logoColor=white" alt="Spring Security JWT">
@@ -167,7 +168,8 @@ Design & planning docs in [`docs/`](docs): PRD, scope, architecture, domain mode
 user stories, UX notes, UML diagrams (PlantUML) and backend code reviews under
 [`docs/analysis/`](docs/analysis). The current delivery plan is tracked in
 [`docs/PLAN.md`](docs/PLAN.md), with actionable work in [`docs/TASKS.md`](docs/TASKS.md) and the
-release security review in [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md).
+release security review in [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md). Release changes are
+summarized in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## 📜 History
 

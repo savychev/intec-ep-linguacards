@@ -14,10 +14,10 @@
 
     <groupId>be.intecbrussel</groupId>
     <artifactId>linguacards</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
-    <name>linguacards</name>
-    <description>LinguaCards_v2</description>
+    <name>LinguaCards</name>
+    <description>Vocabulary flashcards with spaced review scheduling</description>
 
     <properties>
         <java.version>17</java.version>
@@ -96,6 +96,7 @@
     </dependencies>
 
     <build>
+        <finalName>linguacards</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
