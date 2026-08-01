@@ -1,0 +1,120 @@
+<a class="back-link" routerLink="/decks">← Back to my decks</a>
+
+@if (loading()) {
+  <section class="loading-state" aria-live="polite">
+    <span class="spinner" aria-hidden="true"></span>
+    <p>Calculating deck statistics…</p>
+  </section>
+} @else if (loadError(); as message) {
+  <section class="empty-state error-state" aria-labelledby="statistics-error-title">
+    <span class="empty-icon" aria-hidden="true">!</span>
+    <h1 id="statistics-error-title">Statistics could not be loaded</h1>
+    <p>{{ message }}</p>
+    <div class="page-actions">
+      <a class="secondary-button" routerLink="/decks">Back to decks</a>
+      @if (deckId !== null) {
+        <button class="primary-button" type="button" (click)="loadPage()">Try again</button>
+      }
+    </div>
+  </section>
+} @else if (deck(); as currentDeck) {
+  @if (stats(); as currentStats) {
+    <header class="statistics-header">
+      <div>
+        <p class="eyebrow">{{ currentDeck.name }} · {{ currentDeck.languageCode.toUpperCase() }}</p>
+        <h1>Deck statistics</h1>
+      </div>
+      <p>See what is ready now and how the rest of your deck is scheduled.</p>
+    </header>
+
+    <section class="metrics-section" aria-labelledby="overview-title">
+      <p class="section-label" id="overview-title">Overview</p>
+      <div class="metric-grid">
+        <article class="metric-card total">
+          <span>Total cards</span>
+          <strong>{{ currentStats.totalCards }}</strong>
+          <p>All vocabulary in this deck</p>
+        </article>
+        <article class="metric-card new">
+          <span>New</span>
+          <strong>{{ currentStats.newCards }}</strong>
+          <p>Not reviewed yet</p>
+        </article>
+        <article class="metric-card due">
+          <span>Due now</span>
+          <strong>{{ currentStats.dueCards }}</strong>
+          <p>Ready for another review</p>
+        </article>
+        <article class="metric-card scheduled">
+          <span>Scheduled</span>
+          <strong>{{ currentStats.scheduledCards }}</strong>
+          <p>Planned for later</p>
+        </article>
+      </div>
+    </section>
+
+    @if (currentStats.totalCards === 0) {
+      <section class="empty-state compact" aria-labelledby="empty-statistics-title">
+        <span class="empty-icon" aria-hidden="true">0</span>
+        <h2 id="empty-statistics-title">No cards to measure yet</h2>
+        <p>Add vocabulary to this deck and its review schedule will appear here.</p>
+        <a class="primary-button action-link" [routerLink]="['/decks', currentDeck.id]">
+          Add cards
+        </a>
+      </section>
+    } @else {
+      <section class="distribution-card" aria-labelledby="distribution-title">
+        <div>
+          <p class="section-label">Schedule</p>
+          <h2 id="distribution-title">Where your cards are now</h2>
+        </div>
+        <div class="distribution-bar" role="img" [attr.aria-label]="distributionLabel()">
+          @for (segment of distribution(); track segment.label) {
+            @if (segment.value > 0) {
+              <span
+                class="distribution-segment {{ segment.tone }}"
+                [style.width.%]="segment.percentage"
+              ></span>
+            }
+          }
+        </div>
+        <ul class="distribution-legend">
+          @for (segment of distribution(); track segment.label) {
+            <li class="{{ segment.tone }}">
+              <span aria-hidden="true"></span>
+              <strong>{{ segment.value }}</strong>
+              {{ segment.label }}
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="next-step" aria-labelledby="next-step-title">
+        <div>
+          <p class="section-label">Next step</p>
+          @if (readyCards() > 0) {
+            <h2 id="next-step-title">
+              {{ readyCards() }} {{ readyCards() === 1 ? 'card is' : 'cards are' }} ready now
+            </h2>
+            <p>Training starts with new cards, then continues with reviews that are due.</p>
+          } @else {
+            <h2 id="next-step-title">You’re caught up</h2>
+            <p>Every card is scheduled for later. Return when the next review becomes due.</p>
+          }
+        </div>
+        <div class="page-actions">
+          @if (readyCards() > 0) {
+            <a
+              class="primary-button"
+              routerLink="/training"
+              [queryParams]="{ deckId: currentDeck.id }"
+            >
+              Start training
+            </a>
+          }
+          <a class="secondary-button" [routerLink]="['/decks', currentDeck.id]">Manage cards</a>
+        </div>
+      </section>
+    }
+  }
+}

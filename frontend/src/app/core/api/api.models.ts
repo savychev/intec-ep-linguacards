@@ -68,3 +68,11 @@ export interface TrainingNextResponse {
   reason?: TrainingEmptyReason | null;
   card?: TrainingCard | null;
 }
+
+export interface DeckStats {
+  deckId: number;
+  totalCards: number;
+  newCards: number;
+  dueCards: number;
+  scheduledCards: number;
+}

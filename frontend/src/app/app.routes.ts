@@ -46,6 +46,15 @@ export const routes: Routes = [
     title: 'Training | LinguaCards',
   },
   {
+    path: 'stats',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/statistics/deck-statistics.page').then(
+        (module) => module.DeckStatisticsPage,
+      ),
+    title: 'Deck statistics | LinguaCards',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

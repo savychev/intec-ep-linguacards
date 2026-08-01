@@ -121,7 +121,12 @@ Elements:
     - new
     - due now
     - scheduled for later
-- Button: back to deck detail
+- Schedule distribution bar for non-empty decks
+- Empty state with an action to add cards
+- Next-step action:
+    - start training when new or due cards are available
+    - return to deck management when all cards are scheduled
+- Retry action when the API request fails
 
 ---
 
