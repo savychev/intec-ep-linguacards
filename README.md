@@ -20,12 +20,12 @@ target language.
 
 ---
 
-## ✅ Features (backend MVP)
+## ✅ Features
 
 - 🔐 **Auth** — register & login with **JWT** (Spring Security, stateless)
 - 🗂️ **Decks & cards** — full CRUD, owner isolation (users only see their own data)
 - 🎯 **Training flow** — get next card, rate it (`AGAIN / HARD / GOOD / EASY`),
-  review history (`ReviewLog`), card status updates
+  keep review history (`ReviewLog`) and schedule the next review
 - 📊 **Deck statistics** — totals, new cards, reviews due now and cards scheduled for later
 - ⚠️ **Consistent API errors** — global exception handling with typed exceptions
 - 🩺 Health endpoint; DTOs for every request/response
@@ -33,10 +33,23 @@ target language.
 **Frontend:** Angular SPA with working authentication, protected routing, personal deck/card CRUD,
 the complete review-rating flow and a deck statistics dashboard.
 
+## 🎬 Product walkthrough
+
+These screens are captured automatically by the Playwright happy path against the complete
+Docker Compose stack. The test creates the account, deck and card shown here, submits a real
+review, and verifies the resulting schedule.
+
+![Training answer with four review ratings](docs/images/demo-training-answer.png)
+
+| Deck and card management | Review schedule statistics |
+| --- | --- |
+| ![Deck detail with one vocabulary card](docs/images/demo-card-management.png) | ![Deck statistics after a completed review](docs/images/demo-deck-statistics.png) |
+
 ## 🧱 Tech stack
 
 Java 17 · Spring Boot 4.0.3 · Spring Web · Spring Security (JWT) · Spring Data JPA ·
-MySQL · Flyway · Bean Validation · JUnit · Maven | Angular · TypeScript
+MySQL · Flyway · Bean Validation · JUnit · Maven | Angular · TypeScript · Playwright ·
+Docker Compose · NGINX
 
 ## 📂 Structure
 

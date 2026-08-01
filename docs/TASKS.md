@@ -44,7 +44,7 @@ in [`PLAN.md`](PLAN.md).
 - [x] Dockerfile for frontend.
 - [x] Docker Compose with MySQL health check.
 - [x] Browser-level happy-path test.
-- [ ] README screenshots and concise demo instructions.
+- [x] README screenshots captured by the browser happy path and concise demo instructions.
 - [ ] Final documentation and UML reconciliation.
 - [ ] Dependency and security scan.
 - [ ] Portfolio release tag.
