@@ -41,8 +41,8 @@ review, and verifies the resulting schedule.
 
 ![Training answer with four review ratings](docs/images/demo-training-answer.png)
 
-| Deck and card management | Review schedule statistics |
-| --- | --- |
+| Deck and card management                                                      | Review schedule statistics                                                        |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | ![Deck detail with one vocabulary card](docs/images/demo-card-management.png) | ![Deck statistics after a completed review](docs/images/demo-deck-statistics.png) |
 
 ## 🧱 Tech stack

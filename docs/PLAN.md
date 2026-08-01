@@ -1,6 +1,6 @@
 # LinguaCards delivery plan
 
-Last audited: 2026-07-31
+Last audited: 2026-08-01
 
 This plan reflects the consolidated repository as it exists today. A checked item means that
 the code or infrastructure is present; it does not imply production readiness unless the
@@ -60,7 +60,7 @@ inspect the resulting deck schedule in the UI.
 - [x] Add Dockerfiles and Docker Compose for MySQL, backend and frontend.
 - [x] Add one end-to-end happy-path test.
 - [x] Add reproducible demo screenshots to the README.
-- [ ] Reconcile API, architecture and UML documentation with the final code.
+- [x] Reconcile API, architecture and UML documentation with the final code.
 - [ ] Run dependency, security and repository hygiene checks.
 - [ ] Tag the first portfolio-ready release.
 
@@ -71,7 +71,7 @@ Exit criterion: the project is easy to run, demonstrate and evaluate from a fres
 A task is done when:
 
 - the relevant automated tests exist and pass;
-- both CI jobs remain green;
+- all CI jobs remain green;
 - validation, HTTP status codes and owner isolation are handled where applicable;
 - database changes have an immutable migration;
 - no secret or machine-specific configuration is committed;

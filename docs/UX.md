@@ -1,136 +1,65 @@
-# LinguaCards - UX Skeleton (Sitemap + Wireframes)
+# LinguaCards implemented UX
 
-## 1. Sitemap (Pages)
-Public:
-- /login
-- /register
+## Routes
 
-Protected (requires JWT):
-- /decks
-- /decks/:id
-- /training?deckId=...
-- /stats?deckId=...
+| Route                | Access        | Main purpose                                         |
+| -------------------- | ------------- | ---------------------------------------------------- |
+| `/login`             | public-only   | Sign in and show registration/session-ended feedback |
+| `/register`          | public-only   | Create an account, then redirect to login            |
+| `/decks`             | authenticated | List and manage personal decks                       |
+| `/decks/:id`         | authenticated | Manage cards and enter training/statistics           |
+| `/training?deckId=…` | authenticated | Reveal and rate the next available card              |
+| `/stats?deckId=…`    | authenticated | Inspect the deck schedule                            |
 
-Optional:
-- / (redirect to /decks if authenticated else /login)
+`/` redirects according to authentication state. Auth guards reject expired JWTs before a
+protected page renders.
 
----
+## Authentication
 
-## 2. Wireframes (Text)
+Login and registration use labeled email/password controls, inline validation and a disabled
+submit state while the request is active. Registration redirects to login with an account-ready
+message. Login redirects to the originally requested protected URL when safe, otherwise `/decks`.
+API and connectivity failures are shown in the form rather than losing the user's input.
 
-### 2.1 Login Page (/login)
-Elements:
-- Title: "LinguaCards"
-- Email input
-- Password input
-- Button: "Login"
-- Link: "Create account" -> /register
-  Validation:
-- show inline validation messages
+## Deck list
 
-Success:
-- redirect to /decks
+- Shows deck name, language code and privacy state.
+- Uses an inline create/edit region with name, language code and private checkbox.
+- Provides `Open`, `Edit` and two-step `Delete` actions.
+- Separates loading, network failure with retry and no-decks states.
 
----
+## Deck detail and cards
 
-### 2.2 Register Page (/register)
-Elements:
-- Title: "Create account"
-- Email input
-- Password input
-- Button: "Register"
-- Link: "Already have an account?" -> /login
+- Shows the selected deck, language, card count and navigation back to all decks.
+- Provides `View statistics`, `Start training` and `Add card` actions.
+- Displays term, definition and optional example/CEFR/tags in each card.
+- Uses one accessible inline form for create/edit and requires confirmation before delete.
+- Reminds the learner to write definitions/examples in the deck language.
 
-Success:
-- auto-login OR redirect to /login (MVP: redirect to /login)
+## Training
 
----
+1. The page calls `POST /api/decks/{deckId}/train/start`.
+2. Only the term is initially visible.
+3. `Show answer` reveals the definition/example and enables four rating controls.
+4. The selected rating is saved with `POST /api/cards/{cardId}/review`.
+5. The next card is loaded with `POST /api/decks/{deckId}/train/next`.
 
-### 2.3 Deck List Page (/decks)
-Elements:
-- Header: "My Decks"
-- Button: "Create Deck"
-- Deck list items:
-    - deck name
-    - language badge
-    - actions: Open, Edit, Delete
-- Create/Edit deck modal or separate form:
-    - name
-    - language dropdown
+The ratings show their fixed intervals: Again 1 day, Hard 3 days, Good 7 days, Easy 14 days.
+Empty decks link to card creation; caught-up decks link back to deck management. If review succeeds
+but the next request fails, retry cannot repeat the already accepted review.
 
-Actions:
-- Open -> /decks/{id}
+## Statistics
 
----
+The page shows total, new, due-now and scheduled metric cards plus a distribution bar. A new/due
+deck offers training, an empty deck offers card creation, and a fully scheduled deck explains that
+the learner is caught up. Network failure retains the deck ID and offers retry.
 
-### 2.4 Deck Detail Page (/decks/:id)
-Layout:
-- Deck header:
-    - deck name, language
-    - buttons: Edit Deck, Delete Deck
-- Cards section:
-    - Button: "Add Card"
-    - Table/List of cards:
-        - term
-        - definition
-        - optional CEFR level and tags
-        - actions: Edit, Delete
-- Quick actions:
-    - Button: "Start Training" -> /training?deckId={id}
-    - Button: "View Stats" -> /stats?deckId={id}
+## Interaction and accessibility conventions
 
-Add/Edit card form:
-- term (required)
-- definition (required)
-- example sentence (optional)
-- CEFR level (optional)
-- tags (optional)
-
----
-
-### 2.5 Training Page (/training?deckId=...)
-Layout:
-- Header: "Training"
-- Card display:
-    - Term (big)
-- "Show answer" action
-- Revealed answer:
-    - definition
-    - example sentence
-- Buttons:
-    - AGAIN
-    - HARD
-    - GOOD
-    - EASY
-- If no cards:
-    - message: "No cards available for training."
-
-Flow:
-- On page load -> POST start training
-- Reveal the answer before enabling ratings
-- On rating -> POST review -> POST next card
-- If review succeeds but loading the next card fails, retry only the next-card request
-
----
-
-### 2.6 Stats Page (/stats?deckId=...)
-Elements:
-- Header: "Deck Statistics"
-- Cards count:
-    - total
-    - new
-    - due now
-    - scheduled for later
-- Schedule distribution bar for non-empty decks
-- Empty state with an action to add cards
-- Next-step action:
-    - start training when new or due cards are available
-    - return to deck management when all cards are scheduled
-- Retry action when the API request fails
-
----
-
-## 3. UX Notes (MVP)
-- Keep UI minimal and clear (no heavy UI frameworks required)
-- Show clear validation errors
-- Make "monolingual" rule visible in UI (hint text on card form: "No translations. Use definitions/examples in the deck language.")
+- Native labels, headings, landmarks, live status/error messages and buttons/links are used for
+  stable keyboard and assistive-technology behavior.
+- Destructive actions require a second explicit confirmation.
+- Loading disables repeated submissions.
+- Empty and error states always provide an actionable recovery path.
+- The visual system uses high-contrast ink/green accents, responsive layouts and no heavy UI
+  framework.

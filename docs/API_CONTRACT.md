@@ -1,244 +1,250 @@
-# LinguaCards - API Contract (Detailed)
+# LinguaCards API contract
 
-Base URL: /api
-Auth: JWT in header:
-Authorization: Bearer <token>
+Base path: `/api`. Protected routes require:
 
-## Common Responses
+```http
+Authorization: Bearer <accessToken>
+Content-Type: application/json
+```
 
-### Error Response (standard)
+## Common behavior
+
+Successful creates return `201`, reads and updates return `200`, and deletes return `204` with no
+body. Invalid input returns `400`; missing or invalid authentication returns `401`; unknown or
+non-owned resources return `404`; duplicate email/term conflicts return `409`.
+
+Controller, validation and security failures share this envelope:
+
+```json
 {
-"timestamp": "2026-02-16T20:00:00",
-"status": 400,
-"error": "Bad Request",
-"message": "Validation failed",
-"path": "/api/decks",
-"fieldErrors": [
-{"field": "name", "message": "must not be blank"}
-]
+  "timestamp": "2026-08-01T12:00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "name: must not be blank",
+  "path": "/api/decks"
 }
+```
 
-### Status codes conventions
-- 200 OK: successful read/update
-- 201 Created: successful create
-- 204 No Content: successful delete
-- 400 Bad Request: validation errors
-- 401 Unauthorized: missing/invalid JWT
-- 404 Not Found: resource not found or not owned by the authenticated user
-- 409 Conflict: unique constraint violations (email or a duplicate term in one deck)
+Malformed JSON and an invalid numeric path ID also return this shape. Validation currently reports
+the first field error in `message`; there is no separate `fieldErrors` property.
 
----
+## Health and current user
 
-## AUTH
+### `GET /api/health` (public)
 
-### POST /api/auth/register
-Request DTO:
+```json
+{ "status": "ok" }
+```
+
+### `GET /api/me`
+
+```json
 {
-"email": "user@example.com",
-"password": "Password123"
+  "email": "user@example.com",
+  "userId": 1,
+  "issuer": "http://localhost:8080"
 }
+```
 
-Rules:
-- email required, valid format
-- password required, min length (MVP: 6)
-  Responses:
-- 201 Created (or 200 OK)
-- 409 if email already exists
+## Authentication
 
-### POST /api/auth/login
-Request DTO:
+### `POST /api/auth/register` (public)
+
+```json
 {
-"email": "user@example.com",
-"password": "Password123"
+  "email": "user@example.com",
+  "password": "Password123"
 }
+```
 
-Response DTO:
+- Email: required, valid format, maximum 320 characters, unique.
+- Password: required, 6–72 characters.
+- Success: `201 Created`; response message is `registered` and token properties are null.
+- Duplicate email: `409 Conflict`.
+
+### `POST /api/auth/login` (public)
+
+Request uses the same validated credential shape. Success:
+
+```json
 {
-"message": "ok",
-"accessToken": "<jwt>",
-"tokenType": "Bearer"
+  "message": "ok",
+  "accessToken": "<jwt>",
+  "tokenType": "Bearer"
 }
+```
 
-Responses:
-- 200 OK with token
-- 401 Unauthorized if invalid credentials
+Invalid credentials return `401 Unauthorized`.
 
----
+## Decks
 
-## DECKS
+Deck response:
 
-### GET /api/decks
-Response DTO (list):
-[
+```json
 {
-"id": 1,
-"name": "Dutch A2",
-"languageCode": "nl",
-"isPrivate": true
+  "id": 1,
+  "name": "Dutch B2",
+  "languageCode": "nl",
+  "isPrivate": true
 }
-]
+```
 
-### POST /api/decks
-Request DTO:
+### `GET /api/decks`
+
+Returns an array containing only decks owned by the current user.
+
+### `POST /api/decks`
+
+### `PUT /api/decks/{id}`
+
+Both accept:
+
+```json
 {
-"name": "Dutch A2",
-"languageCode": "nl",
-"isPrivate": true
+  "name": "Dutch B2",
+  "languageCode": "nl",
+  "isPrivate": true
 }
+```
 
-Response DTO:
+- `name`: required, 1–120 characters after trimming.
+- `languageCode`: required, 2–10 characters after trimming.
+- `isPrivate`: optional; omitted/null defaults to true.
+
+### `GET /api/decks/{id}`
+
+Returns the owned deck.
+
+### `DELETE /api/decks/{id}`
+
+Deletes the deck, its cards and their review history.
+
+## Cards
+
+Card response:
+
+```json
 {
-"id": 1,
-"name": "Dutch A2",
-"languageCode": "nl",
-"isPrivate": true
+  "id": 10,
+  "deckId": 1,
+  "term": "gezellig",
+  "definition": "Warm and pleasant, especially when people are together.",
+  "example": "We hadden een gezellige avond.",
+  "cefr": "B2",
+  "tags": "social, adjective"
 }
+```
 
-### GET /api/decks/{id}
-Returns deck if owned.
+### `GET /api/decks/{deckId}/cards`
 
-### PUT /api/decks/{id}
-Request DTO:
+Returns all cards in the owned deck.
+
+### `POST /api/decks/{deckId}/cards`
+
+### `PUT /api/cards/{cardId}`
+
+Both accept:
+
+```json
 {
-"name": "Dutch A2 Updated",
-"languageCode": "nl",
-"isPrivate": true
+  "term": "gezellig",
+  "definition": "Warm and pleasant, especially when people are together.",
+  "example": "We hadden een gezellige avond.",
+  "cefr": "B2",
+  "tags": "social, adjective"
 }
+```
 
-### DELETE /api/decks/{id}
-Deletes deck (and its cards).
+- `term`: required, maximum 200; unique within a deck ignoring case.
+- `definition`: required, maximum 2000.
+- `example`: optional, maximum 500.
+- `cefr`: optional, maximum 5.
+- `tags`: optional, maximum 200.
+- Required values are trimmed; blank optional values are stored as null.
 
----
+### `GET /api/cards/{cardId}`
 
-## CARDS
+Returns a card only through ownership of its deck.
 
-### GET /api/decks/{deckId}/cards
-Response DTO:
-[
+### `DELETE /api/cards/{cardId}`
+
+Deletes the card and its review history.
+
+## Training
+
+### `POST /api/decks/{deckId}/train/start`
+
+### `POST /api/decks/{deckId}/train/next`
+
+The two routes currently apply the same selection rule. A card result is wrapped so the API can
+distinguish empty and caught-up decks without using `204`:
+
+```json
 {
-"id": 10,
-"deckId": 1,
-"term": "gezellig",
-"definition": "pleasant and cozy social atmosphere",
-"example": "Het was een gezellige avond.",
-"cefr": "B1",
-"tags": "social, adjective"
+  "hasCard": true,
+  "reason": null,
+  "card": {
+    "cardId": 10,
+    "deckId": 1,
+    "term": "gezellig",
+    "definition": "Warm and pleasant, especially when people are together.",
+    "example": "We hadden een gezellige avond.",
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "intervalDays": 0
+  }
 }
-]
+```
 
-### POST /api/decks/{deckId}/cards
-Request DTO:
+No-card result:
+
+```json
 {
-"term": "gezellig",
-"definition": "pleasant and cozy social atmosphere",
-"example": "Het was een gezellige avond.",
-"cefr": "B1",
-"tags": "social, adjective"
+  "hasCard": false,
+  "reason": "NO_CARDS_TO_TRAIN",
+  "card": null
 }
+```
 
-Rules:
-- `term` and `definition` are required
-- `example`, `cefr` and `tags` are optional
-- `term` is unique within a deck, ignoring letter case
-- maximum lengths: `term` 200, `definition` 2000, `example` 500, `cefr` 5, `tags` 200
+`reason` is `EMPTY_DECK` when the deck has no cards and `NO_CARDS_TO_TRAIN` when every card is
+scheduled for later. Selection returns the lowest-ID new card first; otherwise it returns the due
+card with the earliest `nextReviewAt` and then lowest ID.
 
-### GET /api/cards/{id}
-Returns the card if its deck is owned by the authenticated user.
+### `POST /api/cards/{cardId}/review`
 
-### PUT /api/cards/{id}
-Request DTO (same fields as create)
+```json
+{ "rating": "GOOD" }
+```
 
-### DELETE /api/cards/{id}
+`rating` must be `AGAIN`, `HARD`, `GOOD` or `EASY`. The operation creates a review log and sets the
+next interval to 1, 3, 7 or 14 days respectively. Success returns the updated training card:
 
----
-
-## TRAINING
-
-### POST /api/decks/{deckId}/train/start
-
-### POST /api/decks/{deckId}/train/next
-
-Owner isolation:
-- `deckId` must belong to the authenticated user; otherwise return 404 Not Found.
-
-Response DTO when a card is available:
+```json
 {
-"hasCard": true,
-"card": {
   "cardId": 10,
   "deckId": 1,
   "term": "gezellig",
-  "definition": "pleasant and cozy social atmosphere",
-  "example": "Het was een gezellige avond.",
-"lastReviewedAt": null,
-"nextReviewAt": null,
-"intervalDays": 0
+  "definition": "Warm and pleasant, especially when people are together.",
+  "example": "We hadden een gezellige avond.",
+  "lastReviewedAt": "2026-08-01T12:00:00Z",
+  "nextReviewAt": "2026-08-08T12:00:00Z",
+  "intervalDays": 7
 }
-}
+```
 
-The three scheduling fields are nullable/zero for a card that has not been reviewed yet.
+## Statistics
 
-Response DTO when no card is available:
+### `GET /api/decks/{deckId}/stats`
+
+```json
 {
-"hasCard": false,
-"reason": "EMPTY_DECK"
+  "deckId": 1,
+  "totalCards": 20,
+  "newCards": 5,
+  "dueCards": 7,
+  "scheduledCards": 8
 }
+```
 
-`reason` is `EMPTY_DECK` when the deck has no cards, or `NO_CARDS_TO_TRAIN` when every card is
-scheduled for a future review.
-
-Selection rule (MVP):
-- return the oldest card that has never been reviewed first
-- otherwise return the earliest card whose `nextReviewAt` is due
-- return `NO_CARDS_TO_TRAIN` when no card is currently due
-
-### POST /api/cards/{cardId}/review
-Request DTO:
-{
-"rating": "GOOD"
-}
-
-Owner isolation:
-- `cardId` must belong to a deck owned by the authenticated user; otherwise return 404 Not Found.
-
-Rules:
-- `rating` is one of `AGAIN`, `HARD`, `GOOD`, `EASY`
-- create a `ReviewLog`
-- set the next interval to 1, 3, 7 or 14 days respectively
-
-Response DTO:
-{
-"cardId": 10,
-"deckId": 1,
-"term": "gezellig",
-"definition": "pleasant and cozy social atmosphere",
-"example": "Het was een gezellige avond.",
-"lastReviewedAt": "2026-02-16T20:00:00Z",
-"nextReviewAt": "2026-02-23T20:00:00Z",
-"intervalDays": 7
-}
-
----
-
-## STATS
-
-### GET /api/decks/{deckId}/stats
-Owner isolation:
-- `deckId` must belong to the authenticated user; otherwise return 404 Not Found.
-
-Response DTO:
-{
-"deckId": 1,
-"totalCards": 20,
-"newCards": 5,
-"dueCards": 7,
-"scheduledCards": 8
-}
-
----
-
-## Business Rules Traceability (MVP)
-- BR-2 Owner Isolation -> all Deck/Card/Training/Stats endpoints verify ownership.
-- BR-4 Review scheduling -> POST /api/cards/{cardId}/review (rating-to-interval mapping).
-- BR-5 Training selection -> POST /api/decks/{deckId}/train/start and `/train/next`.
-- BR-6 Statistics -> GET /api/decks/{deckId}/stats.
+New, due and scheduled counts are mutually exclusive and sum to `totalCards` at the instant of the
+request.

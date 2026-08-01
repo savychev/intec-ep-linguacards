@@ -1,20 +1,24 @@
 @startuml
-actor User as U
-participant "Angular UI" as UI
-participant "AuthController" as C
-participant "AuthService" as S
-participant "UserRepository" as R
-participant "JWT Provider" as J
+actor Learner
+participant "Angular login page" as UI
+participant AuthController as Controller
+participant UserService as Service
+participant UserRepository as Repository
+participant PasswordEncoder as Encoder
+participant JwtTokenService as JWT
 
-U -> UI: Enter email + password
-UI -> C: POST /api/auth/login
-C -> S: login(email, password)
-S -> R: findByEmail(email)
-R --> S: User
-S -> S: verify password (BCrypt)
-S -> J: generateToken(userId, email)
-J --> S: jwt
-S --> C: jwt
-C --> UI: 200 OK + token
-UI --> U: User is authenticated
+Learner -> UI: Submit email and password
+UI -> Controller: POST /api/auth/login
+Controller -> Service: authenticate(email, password)
+Service -> Repository: findByEmail(email)
+Repository --> Service: User
+Service -> Encoder: matches(raw, passwordHash)
+Encoder --> Service: true
+Service --> Controller: authenticated User
+Controller -> JWT: generateToken(User)
+JWT --> Controller: signed HS256 JWT
+Controller --> UI: 200 AuthResponse
+UI -> UI: validate and store token
+UI --> Learner: Redirect to /decks
+
 @enduml
