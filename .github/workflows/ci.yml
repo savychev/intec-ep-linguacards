@@ -121,6 +121,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Upload demo screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: demo-screenshots
+          path: frontend/test-results/**/0?-*.png
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Show container logs on failure
         if: failure()
         run: docker compose logs --no-color

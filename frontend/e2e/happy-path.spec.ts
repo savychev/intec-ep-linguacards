@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Page, TestInfo } from '@playwright/test';
 
 test('a learner can create and review a vocabulary card', async ({ page }, testInfo) => {
   const email = `portfolio-e2e-${testInfo.retry}@example.test`;
@@ -49,6 +49,7 @@ test('a learner can create and review a vocabulary card', async ({ page }, testI
 
   await expect(page.getByRole('heading', { name: 'gezellig' })).toBeVisible();
   await expect(page.getByText('1 card', { exact: true })).toBeVisible();
+  await captureDemo(page, testInfo, '01-card-management.png');
   await page.getByRole('link', { name: 'Start training' }).click();
 
   await expect(page).toHaveURL(/\/training\?deckId=\d+$/);
@@ -57,6 +58,7 @@ test('a learner can create and review a vocabulary card', async ({ page }, testI
   await expect(
     page.getByText('Warm, pleasant and comfortable, especially when people are together.'),
   ).toBeVisible();
+  await captureDemo(page, testInfo, '02-training-answer.png');
   await page.getByRole('button', { name: /Good 7 days/ }).click();
 
   await expect(page.getByRole('heading', { name: 'You’re caught up' })).toBeVisible();
@@ -70,8 +72,17 @@ test('a learner can create and review a vocabulary card', async ({ page }, testI
   await expect(metric(page, 'Due now').getByText('0', { exact: true })).toBeVisible();
   await expect(metric(page, 'Scheduled').getByText('1', { exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'You’re caught up' })).toBeVisible();
+  await captureDemo(page, testInfo, '03-deck-statistics.png');
 });
 
 function metric(page: Page, label: string) {
   return page.getByRole('article').filter({ hasText: label });
+}
+
+async function captureDemo(page: Page, testInfo: TestInfo, filename: string) {
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({
+    path: testInfo.outputPath(filename),
+    fullPage: true,
+  });
 }
