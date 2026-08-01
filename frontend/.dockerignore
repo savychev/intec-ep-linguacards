@@ -1,0 +1,12 @@
+.angular
+.git
+.idea
+coverage
+dist
+node_modules
+*.iml
+*.log
+Dockerfile*
+README.md
+e2e
+src/**/*.spec.ts
