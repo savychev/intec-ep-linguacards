@@ -3,7 +3,7 @@
 <p>
   <a href="https://github.com/savychev/intec-ep-linguacards/actions/workflows/ci.yml"><img src="https://github.com/savychev/intec-ep-linguacards/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white" alt="Java 17">
-  <img src="https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 4.0.3">
+  <img src="https://img.shields.io/badge/Spring_Boot-4.0.7-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 4.0.7">
   <img src="https://img.shields.io/badge/Spring_Security-JWT-6DB33F?logo=springsecurity&logoColor=white" alt="Spring Security JWT">
   <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white" alt="MySQL">
   <img src="https://img.shields.io/badge/Angular-DD0031?logo=angular&logoColor=white" alt="Angular">
@@ -47,7 +47,7 @@ review, and verifies the resulting schedule.
 
 ## 🧱 Tech stack
 
-Java 17 · Spring Boot 4.0.3 · Spring Web · Spring Security (JWT) · Spring Data JPA ·
+Java 17 · Spring Boot 4.0.7 · Spring Web · Spring Security (JWT) · Spring Data JPA ·
 MySQL · Flyway · Bean Validation · JUnit · Maven | Angular · TypeScript · Playwright ·
 Docker Compose · NGINX
 
@@ -158,15 +158,16 @@ npm run e2e
 
 Backend tests apply the H2 Flyway migration, validate it against the JPA entities and use a
 test-only JWT key. GitHub Actions runs backend verification, frontend test/build, a complete
-container-stack smoke test and the Playwright happy path for every pull request and every push to
-`main`.
+container-stack smoke test, the Playwright happy path and high/critical dependency, secret and
+configuration scanning for every pull request and every push to `main`.
 
 ## 📚 Documentation
 
 Design & planning docs in [`docs/`](docs): PRD, scope, architecture, domain model, ERD,
 user stories, UX notes, UML diagrams (PlantUML) and backend code reviews under
 [`docs/analysis/`](docs/analysis). The current delivery plan is tracked in
-[`docs/PLAN.md`](docs/PLAN.md), with actionable work in [`docs/TASKS.md`](docs/TASKS.md).
+[`docs/PLAN.md`](docs/PLAN.md), with actionable work in [`docs/TASKS.md`](docs/TASKS.md) and the
+release security review in [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md).
 
 ## 📜 History
 

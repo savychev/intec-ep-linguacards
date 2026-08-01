@@ -61,7 +61,7 @@ inspect the resulting deck schedule in the UI.
 - [x] Add one end-to-end happy-path test.
 - [x] Add reproducible demo screenshots to the README.
 - [x] Reconcile API, architecture and UML documentation with the final code.
-- [ ] Run dependency, security and repository hygiene checks.
+- [x] Run dependency, security and repository hygiene checks.
 - [ ] Tag the first portfolio-ready release.
 
 Exit criterion: the project is easy to run, demonstrate and evaluate from a fresh checkout.
