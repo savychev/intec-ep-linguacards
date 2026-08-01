@@ -93,8 +93,10 @@ Layout:
 - Header: "Training"
 - Card display:
     - Term (big)
-    - Definition
-    - Example sentence
+- "Show answer" action
+- Revealed answer:
+    - definition
+    - example sentence
 - Buttons:
     - AGAIN
     - HARD
@@ -105,7 +107,9 @@ Layout:
 
 Flow:
 - On page load -> POST start training
+- Reveal the answer before enabling ratings
 - On rating -> POST review -> POST next card
+- If review succeeds but loading the next card fails, retry only the next-card request
 
 ---
 

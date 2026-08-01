@@ -1,0 +1,117 @@
+@if (loading()) {
+  <section class="loading-state" aria-live="polite">
+    <span class="spinner" aria-hidden="true"></span>
+    <p>Preparing your training session…</p>
+  </section>
+} @else if (loadError(); as message) {
+  <section class="empty-state error-state" aria-labelledby="training-error-title">
+    <span class="empty-icon" aria-hidden="true">!</span>
+    <h1 id="training-error-title">Training could not be started</h1>
+    <p>{{ message }}</p>
+    <div class="state-actions">
+      <a class="secondary-button" routerLink="/decks">Back to decks</a>
+      @if (deckId !== null) {
+        <button class="primary-button" type="button" (click)="startSession()">Try again</button>
+      }
+    </div>
+  </section>
+} @else if (deck(); as currentDeck) {
+  <a class="back-link" [routerLink]="['/decks', currentDeck.id]"
+    >← Back to {{ currentDeck.name }}</a
+  >
+
+  <header class="training-header">
+    <div>
+      <p class="eyebrow">{{ currentDeck.languageCode.toUpperCase() }} · Training</p>
+      <h1>Recall before you reveal.</h1>
+    </div>
+    <p>Read the term, remember its meaning, then rate how easily it came back.</p>
+  </header>
+
+  @if (card(); as currentCard) {
+    <article class="study-card" aria-live="polite">
+      <div class="prompt">
+        <span>Term</span>
+        <h2>{{ currentCard.term }}</h2>
+      </div>
+
+      @if (answerRevealed()) {
+        <div class="answer">
+          <span>Definition</span>
+          <p>{{ currentCard.definition }}</p>
+          @if (currentCard.example) {
+            <blockquote>{{ currentCard.example }}</blockquote>
+          }
+        </div>
+
+        @if (actionError(); as message) {
+          <p class="message error" role="alert">{{ message }}</p>
+        }
+
+        <div class="rating-panel" aria-labelledby="rating-title">
+          <div>
+            <p class="rating-title" id="rating-title">How well did you remember it?</p>
+            <p class="rating-note">Your choice sets the next review date.</p>
+          </div>
+          <div class="rating-grid">
+            @for (rating of ratings; track rating.value) {
+              <button
+                type="button"
+                class="rating-button {{ rating.tone }}"
+                [attr.data-rating]="rating.value"
+                [disabled]="advancing()"
+                (click)="rate(rating.value)"
+              >
+                <strong>{{ rating.label }}</strong>
+                <span>{{ rating.interval }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="reveal-panel">
+          <p>Say the definition in your own words before checking.</p>
+          <button class="primary-button reveal-button" type="button" (click)="revealAnswer()">
+            Show answer
+          </button>
+        </div>
+      }
+
+      @if (advancing()) {
+        <p class="saving-note" aria-live="polite">Saving review and finding the next card…</p>
+      }
+    </article>
+  } @else if (advancing()) {
+    <section class="loading-state session-loading" aria-live="polite">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Finding the next card…</p>
+    </section>
+  } @else if (actionError(); as message) {
+    <section class="empty-state error-state" aria-labelledby="next-card-error-title">
+      <span class="empty-icon" aria-hidden="true">!</span>
+      <h2 id="next-card-error-title">The next card could not be loaded</h2>
+      <p>{{ message }}</p>
+      <button class="primary-button" type="button" [disabled]="advancing()" (click)="retryNext()">
+        {{ advancing() ? 'Loading…' : 'Try next card' }}
+      </button>
+    </section>
+  } @else if (emptyReason() === 'EMPTY_DECK') {
+    <section class="empty-state" aria-labelledby="empty-deck-title">
+      <span class="empty-icon" aria-hidden="true">Aa</span>
+      <h2 id="empty-deck-title">Add cards before training</h2>
+      <p>This deck is empty. Add a few terms and definitions, then come back to practise.</p>
+      <a class="primary-button state-link" [routerLink]="['/decks', currentDeck.id]">Add cards</a>
+    </section>
+  } @else {
+    <section class="empty-state complete-state" aria-labelledby="complete-title">
+      <span class="empty-icon" aria-hidden="true">✓</span>
+      <h2 id="complete-title">You’re caught up</h2>
+      <p>
+        There are no new or due cards in this deck right now. Come back after the next review date.
+      </p>
+      <a class="primary-button state-link" [routerLink]="['/decks', currentDeck.id]"
+        >Back to deck</a
+      >
+    </section>
+  }
+}

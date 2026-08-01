@@ -30,8 +30,8 @@ target language.
 - ⚠️ **Consistent API errors** — global exception handling with typed exceptions
 - 🩺 Health endpoint; DTOs for every request/response
 
-**Frontend:** Angular SPA with working authentication, protected routing and personal deck/card
-CRUD. Training and statistics screens are in development.
+**Frontend:** Angular SPA with working authentication, protected routing, personal deck/card CRUD
+and the complete review-rating flow. Deck statistics are in development.
 
 ## 🧱 Tech stack
 
@@ -50,7 +50,7 @@ backend/    Spring Boot REST API
     security/     JWT token service
     config/       SecurityConfig · JwtProperties · PasswordConfig
     exception/    GlobalExceptionHandler + typed exceptions
-frontend/   Angular SPA (features: auth · decks · train)
+frontend/   Angular SPA (features: auth · decks · training)
 docs/       PRD · scope · architecture · ERD · UML · user stories · code reviews
 ```
 

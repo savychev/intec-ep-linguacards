@@ -47,3 +47,24 @@ export interface CardPayload {
   cefr: string | null;
   tags: string | null;
 }
+
+export type ReviewRating = 'AGAIN' | 'HARD' | 'GOOD' | 'EASY';
+
+export type TrainingEmptyReason = 'EMPTY_DECK' | 'NO_CARDS_TO_TRAIN';
+
+export interface TrainingCard {
+  cardId: number;
+  deckId: number;
+  term: string;
+  definition: string;
+  example: string | null;
+  lastReviewedAt: string | null;
+  nextReviewAt: string | null;
+  intervalDays: number;
+}
+
+export interface TrainingNextResponse {
+  hasCard: boolean;
+  reason?: TrainingEmptyReason | null;
+  card?: TrainingCard | null;
+}
