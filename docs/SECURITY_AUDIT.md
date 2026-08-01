@@ -35,6 +35,10 @@ available to the scanner without relying on incomplete `pom.xml` inference.
 
 ## Results and residual risk
 
+- [CI run #33](https://github.com/savychev/intec-ep-linguacards/actions/runs/30702742878)
+  passed backend verification, 44 frontend tests and production build, the full Compose/Playwright
+  path, repository hygiene and Trivy. The first scanner run found the frontend Dockerfile's implicit
+  runtime user; the explicit non-root declaration above fixed it without an ignore rule.
 - A clean install of the release lockfile reports **0 known vulnerabilities in production npm
   dependencies**.
 - The full development tree reports three moderate package entries caused by one transitive

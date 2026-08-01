@@ -46,5 +46,5 @@ in [`PLAN.md`](PLAN.md).
 - [x] Browser-level happy-path test.
 - [x] README screenshots captured by the browser happy path and concise demo instructions.
 - [x] Final documentation and UML reconciliation.
-- [ ] Dependency and security scan.
+- [x] Dependency and security scan.
 - [ ] Portfolio release tag.
