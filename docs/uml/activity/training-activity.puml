@@ -1,20 +1,25 @@
 @startuml
 start
-:Select deck;
-:Load next card;
-:Show front;
-:Flip;
-:Choose rating;
-:Save review log;
+:Select owned deck;
+:Request start result;
 
-while (Next card?) is (yes)
-  :Load next card;
-  :Show front;
-  :Flip;
-  :Choose rating;
-  :Save review log;
-endwhile (no)
+if (Card available?) then (yes)
+  repeat
+    :Show term;
+    :Reveal definition and example;
+    :Choose Again / Hard / Good / Easy;
+    :Save review and schedule;
+    :Request next result;
+  repeat while (Another card available?) is (yes)
+  -> no;
+  :Show caught-up state;
+else (no)
+  if (Deck empty?) then (yes)
+    :Offer add-card action;
+  else (no)
+    :Show caught-up state;
+  endif
+endif
 
-:End session;
 stop
 @enduml

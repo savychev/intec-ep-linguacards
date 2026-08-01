@@ -6,46 +6,34 @@ class User {
   +id: Long
   +email: String
   +passwordHash: String
-  +createdAt: LocalDateTime
 }
 
 class Deck {
   +id: Long
   +name: String
-  +language: Language
-  +createdAt: LocalDateTime
+  +languageCode: String
+  +isPrivate: boolean
 }
 
 class Card {
   +id: Long
-  +word: String
+  +term: String
   +definition: String
-  +exampleSentence: String
-  +status: CardStatus
-  +createdAt: LocalDateTime
+  +example: String?
+  +cefr: String?
+  +tags: String?
+  +nextReviewAt: Instant?
+  +lastReviewedAt: Instant?
+  +intervalDays: int
 }
 
 class ReviewLog {
   +id: Long
-  +rating: Rating
-  +reviewedAt: LocalDateTime
+  +rating: ReviewRating
+  +reviewedAt: Instant
 }
 
-enum Language {
-  EN
-  NL
-  FR
-  PT
-}
-
-enum CardStatus {
-  NEW
-  LEARNING
-  REVIEW
-  MASTERED
-}
-
-enum Rating {
+enum ReviewRating {
   AGAIN
   HARD
   GOOD
@@ -54,6 +42,13 @@ enum Rating {
 
 User "1" -- "0..*" Deck : owns >
 Deck "1" -- "0..*" Card : contains >
-Card "1" -- "0..*" ReviewLog : has >
+Card "1" -- "0..*" ReviewLog : records >
+ReviewLog --> ReviewRating
+
+note right of Card
+  new: nextReviewAt is null
+  due: nextReviewAt <= now
+  scheduled: nextReviewAt > now
+end note
 
 @enduml

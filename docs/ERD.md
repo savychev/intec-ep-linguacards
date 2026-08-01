@@ -1,102 +1,76 @@
-# LinguaCards - Data Model (ERD)
+# LinguaCards data model
 
-## 1. Overview
-Database: MySQL
-Migration tool: Flyway
+The production database is MySQL 8. Flyway migration
+[`V1__create_core_schema.sql`](../backend/src/main/resources/db/migration/mysql/V1__create_core_schema.sql)
+is the schema source of truth; an H2-specific migration provides equivalent test types.
 
-Tables:
-- users
-- decks
-- cards
-- review_logs
+## Relationships
 
-Relationships:
-- users (1) -> (many) decks
-- decks (1) -> (many) cards
-- cards (1) -> (many) review_logs
+| Parent  | Relationship | Child         | Foreign key           |
+| ------- | ------------ | ------------- | --------------------- |
+| `users` | 1 → 0..\*    | `decks`       | `decks.owner_id`      |
+| `decks` | 1 → 0..\*    | `cards`       | `cards.deck_id`       |
+| `cards` | 1 → 0..\*    | `review_logs` | `review_logs.card_id` |
 
----
+## `users`
 
-## 2. Tables
+| Column          | MySQL type     | Constraints                         |
+| --------------- | -------------- | ----------------------------------- |
+| `id`            | `BIGINT`       | primary key, auto increment         |
+| `email`         | `VARCHAR(320)` | not null, unique (`uk_users_email`) |
+| `password_hash` | `VARCHAR(255)` | not null                            |
 
-### 2.1 users
-| Column        | Type           | Constraints                         |
-|--------------|----------------|-------------------------------------|
-| id           | BIGINT         | PK, auto increment                  |
-| email        | VARCHAR(255)   | NOT NULL, UNIQUE                    |
-| password_hash| VARCHAR(255)   | NOT NULL                            |
-| created_at   | DATETIME       | NOT NULL                            |
+## `decks`
 
-Indexes:
-- ux_users_email (unique)
+| Column          | MySQL type     | Constraints                                |
+| --------------- | -------------- | ------------------------------------------ |
+| `id`            | `BIGINT`       | primary key, auto increment                |
+| `owner_id`      | `BIGINT`       | not null, FK `fk_decks_owner` → `users.id` |
+| `name`          | `VARCHAR(120)` | not null                                   |
+| `language_code` | `VARCHAR(10)`  | not null                                   |
+| `is_private`    | `BOOLEAN`      | not null, default true                     |
 
----
+Index: `idx_decks_owner_id(owner_id)`.
 
-### 2.2 decks
-| Column      | Type           | Constraints                               |
-|------------|----------------|-------------------------------------------|
-| id         | BIGINT         | PK, auto increment                        |
-| user_id    | BIGINT         | NOT NULL, FK -> users(id)                 |
-| name       | VARCHAR(120)   | NOT NULL                                  |
-| language   | VARCHAR(10)    | NOT NULL (enum stored as string)          |
-| created_at | DATETIME       | NOT NULL                                  |
+## `cards`
 
-Indexes:
-- ix_decks_user_id
-- ix_decks_user_id_created_at (optional)
+| Column             | MySQL type      | Constraints                               |
+| ------------------ | --------------- | ----------------------------------------- |
+| `id`               | `BIGINT`        | primary key, auto increment               |
+| `deck_id`          | `BIGINT`        | not null, FK `fk_cards_deck` → `decks.id` |
+| `term`             | `VARCHAR(200)`  | not null                                  |
+| `definition`       | `VARCHAR(2000)` | not null                                  |
+| `example`          | `VARCHAR(500)`  | nullable                                  |
+| `cefr`             | `VARCHAR(5)`    | nullable                                  |
+| `tags`             | `VARCHAR(200)`  | nullable                                  |
+| `next_review_at`   | `DATETIME(6)`   | nullable; null means new                  |
+| `last_reviewed_at` | `DATETIME(6)`   | nullable                                  |
+| `interval_days`    | `INT`           | not null, default 0                       |
 
-FK:
-- fk_decks_user_id: decks.user_id -> users.id
-  On delete:
-- CASCADE (recommended in MVP) or RESTRICT + manual delete
+Constraints and indexes:
 
----
+- `uk_cards_deck_term(deck_id, term)` prevents duplicate terms within one deck. The configured
+  `utf8mb4_0900_ai_ci` collation makes this comparison case-insensitive.
+- `idx_cards_deck_id(deck_id)` supports deck card access and counts.
+- `idx_cards_next_review_at(next_review_at)` supports schedule queries.
 
-### 2.3 cards
-| Column          | Type           | Constraints                               |
-|----------------|----------------|-------------------------------------------|
-| id             | BIGINT         | PK, auto increment                        |
-| deck_id        | BIGINT         | NOT NULL, FK -> decks(id)                 |
-| word           | VARCHAR(120)   | NOT NULL                                  |
-| definition     | TEXT           | NOT NULL                                  |
-| example_sentence | TEXT         | NOT NULL                                  |
-| status         | VARCHAR(20)    | NOT NULL (NEW/LEARNING/REVIEW/MASTERED)   |
-| created_at     | DATETIME       | NOT NULL                                  |
+## `review_logs`
 
-Indexes:
-- ix_cards_deck_id
-- ix_cards_deck_id_status
-- ix_cards_deck_id_created_at (for deterministic ordering)
+| Column        | MySQL type    | Constraints                                     |
+| ------------- | ------------- | ----------------------------------------------- |
+| `id`          | `BIGINT`      | primary key, auto increment                     |
+| `card_id`     | `BIGINT`      | not null, FK `fk_review_logs_card` → `cards.id` |
+| `rating`      | native `ENUM` | `AGAIN`, `HARD`, `GOOD` or `EASY`               |
+| `reviewed_at` | `DATETIME(6)` | not null                                        |
 
-FK:
-- fk_cards_deck_id: cards.deck_id -> decks.id
-  On delete:
-- CASCADE (recommended)
+Indexes: `idx_review_logs_card_id(card_id)` and
+`idx_review_logs_reviewed_at(reviewed_at)`.
 
----
+## Lifecycle notes
 
-### 2.4 review_logs
-| Column      | Type           | Constraints                               |
-|------------|----------------|-------------------------------------------|
-| id         | BIGINT         | PK, auto increment                        |
-| card_id    | BIGINT         | NOT NULL, FK -> cards(id)                 |
-| rating     | VARCHAR(10)    | NOT NULL (AGAIN/HARD/GOOD/EASY)           |
-| reviewed_at| DATETIME       | NOT NULL                                  |
-
-Indexes:
-- ix_review_logs_card_id
-- ix_review_logs_reviewed_at
-- ix_review_logs_card_id_reviewed_at (useful for stats)
-
-FK:
-- fk_review_logs_card_id: review_logs.card_id -> cards.id
-  On delete:
-- CASCADE (recommended)
-
----
-
-## 3. Notes (Implementation Decisions)
-- Store enums as strings (readable, stable for MVP).
-- Use DATETIME for timestamps.
-- Owner isolation is enforced in service layer, not via DB row-level security.
-- "reviewsToday" can be computed by filtering review_logs.reviewed_at by current date range.
+- MySQL stores timestamps to microsecond precision; Java exposes them as `Instant` values.
+- Hibernate validates this schema at startup and does not mutate it.
+- The foreign keys do not declare database-level `ON DELETE CASCADE`. Aggregate deletion is
+  performed by JPA `cascade = ALL` plus `orphanRemoval = true` inside service transactions.
+- Owner isolation is an application-layer rule based on the authenticated JWT, not database row
+  security.

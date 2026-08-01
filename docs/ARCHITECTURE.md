@@ -1,108 +1,92 @@
-# LinguaCards - Architecture (High-Level)
+# LinguaCards architecture
 
-## 1. Architecture Style
-Modular monolith with layered architecture.
+This document describes the implemented system. Historical design reviews remain under
+[`analysis/`](analysis/).
 
-- Monolith: single backend application (Spring Boot)
-- Modular: clear packages/modules by feature
-- Layered: controller -> service -> repository
+## System shape
 
-Frontend is a separate SPA (Angular) consuming REST APIs.
+LinguaCards is a modular monolith with three runtime containers:
 
-## 2. System Context (C4 - Context)
-Actors:
-- User (authenticated)
+1. An Angular single-page application served by unprivileged NGINX.
+2. A Spring Boot REST API.
+3. A MySQL database managed by Flyway migrations.
 
-Systems:
-- LinguaCards Web App (Angular + Spring Boot)
-- MySQL database
+In Docker Compose, the browser talks only to `http://localhost:4200`. NGINX serves the SPA,
+falls back to `index.html` for client routes and proxies `/api` to the backend. Direct backend
+access on port `8080` remains available for API development.
 
-User interacts with Angular UI. Angular calls Spring Boot REST API. Spring Boot persists data to MySQL.
+## Backend
 
-## 3. Containers (C4 - Container)
-1) Frontend (Angular)
-- UI pages: Auth, Decks, Cards, Training, Stats
-- JWT stored client-side (localStorage or memory; MVP: localStorage)
-- HttpInterceptor adds Authorization header
+The Java code uses a conventional layered package structure under
+`be.intecbrussel.linguacards`:
 
-2) Backend (Spring Boot)
-- REST controllers
-- Security (JWT)
-- Service layer (business rules)
-- Repositories (JPA)
-- Flyway migrations
+- `controller` maps HTTP requests, validates DTOs and reads the authenticated JWT principal;
+- `service` owns transactions, scheduling rules and owner checks;
+- `repository` provides Spring Data JPA access and ordering/count queries;
+- `entity` contains the four persisted entities and `ReviewRating` enum;
+- `dto` isolates the REST contract from persistence entities;
+- `security` and `config` implement JWT, CORS and JSON security errors;
+- `exception` maps expected failures to the standard API error envelope.
 
-3) Database (MySQL)
-- users, decks, cards, review_logs tables
+Controllers never accept an owner ID from the client. The authenticated `userId` JWT claim is
+passed into the service layer, where deck ownership is required before deck, card, training or
+statistics data is returned. A missing resource and a resource owned by another user both produce
+`404 Not Found`, which avoids disclosing its existence.
 
-## 4. Backend Modules (packages)
-Recommended feature-oriented structure inside base package be.intec.linguacards:
+## Frontend
 
-- auth
-    - controller, dto, service, security helpers
-- deck
-    - controller, dto, service, repository
-- card
-    - controller, dto, service, repository
-- training
-    - controller, dto, service
-- stats
-    - controller, dto, service
-- common
-    - exception, config, util
+The Angular application is organized by feature:
 
-(Exact packaging can be simplified, but keep separation clear.)
+- `core/auth` stores and validates the access token, attaches it to same-API requests and guards
+  protected routes;
+- `core/api` contains environment-aware API configuration and the shared error contract;
+- `features/auth` implements registration and login;
+- `features/decks` implements deck and card CRUD;
+- `features/training` implements answer reveal and four review ratings;
+- `features/statistics` visualizes the current deck schedule.
 
-## 5. Layers and Responsibilities
+Feature pages and their data-access services are lazy-loaded where appropriate. Authentication is
+stateless: the JWT is kept in `localStorage`, removed when expired or rejected with `401`, and is
+sent only to the configured API while login/register and third-party requests remain token-free.
+Logout is client-side token removal. Refresh tokens are out of scope.
 
-### Controller Layer
-- HTTP mapping
-- DTO validation
-- returns proper HTTP codes
-- no business logic
+## Security boundaries
 
-### Service Layer
-- business rules
-- owner checks (Deck/Card/Training/Stats ownership validation)
-- training logic (status mapping + deterministic next-card selection by createdAt)
-- transactions
+Public endpoints are limited to:
 
-### Repository Layer
-- DB access via Spring Data JPA
-- query methods for stats and training selection
+- `GET /api/health`;
+- `POST /api/auth/register`;
+- `POST /api/auth/login`.
 
-## 6. Security Model
-- JWT authentication
-- Endpoints:
-    - public: /api/auth/**
-    - protected: everything else
-- CORS:
-    - allow Angular dev server http://localhost:4200 (MVP)
+Every other API endpoint requires an HS256 JWT with the configured issuer. Startup validation
+requires an absolute HTTP(S) issuer, a signing secret of at least 32 characters and a positive
+expiration. CORS uses an explicit origin allowlist and never enables credentials. Security-filter
+failures and controller failures share the same JSON error shape.
 
-## 7. Error Handling
-- GlobalExceptionHandler
-- Standard error response structure:
-    - timestamp
-    - status
-    - error
-    - message
-    - path
-    - fieldErrors (for validation)
+## Persistence and scheduling
 
-## 8. Testing Strategy (MVP)
-- Integration tests:
-    - register/login flow
-    - access protected endpoint
-    - owner isolation checks (later)
-- Unit tests:
-    - service logic for status update
-    - training selection rules (later)
+Flyway owns schema creation for both MySQL and the H2 test database. Hibernate runs with
+`ddl-auto=validate` and `open-in-view=false`, so schema drift fails at startup and lazy persistence
+access stays inside service transactions.
 
-## 9. Deployment (MVP)
-Local development:
-- MySQL can run via Docker or local install
-- backend runs with Maven
-- frontend runs with npm
+A card is new while `nextReviewAt` is null. Training selects the oldest new card first; otherwise
+it selects the due card with the earliest `nextReviewAt`. A rating creates an immutable
+`ReviewLog` and sets the next interval to 1, 3, 7 or 14 days for `AGAIN`, `HARD`, `GOOD` or `EASY`.
+Statistics partition a deck into new, due and scheduled cards.
 
-Optional:
-- docker-compose (mysql + backend + frontend)
+## Verification
+
+- Backend integration tests run against the H2 Flyway migration and cover authentication,
+  validation, owner isolation, CRUD, scheduling, statistics, CORS and JSON security errors.
+- Frontend unit/component tests cover the shell, auth, HTTP services and every feature page.
+- One Playwright happy path runs against the complete Docker Compose stack and verifies
+  registration through the resulting statistics.
+- GitHub Actions runs backend verification, frontend test/build and container/browser checks for
+  each pull request and push to `main`.
+
+## Deployment
+
+Both application images use multi-stage builds and unprivileged runtime users. Compose waits for
+MySQL, backend and frontend health checks, stores database data in a named volume and injects all
+passwords/signing material through environment variables. Production deployments must replace
+the example values and provide their own TLS/reverse-proxy boundary.

@@ -1,75 +1,53 @@
+# LinguaCards API endpoint index
 
-# LinguaCards API Specification
+Base path: `/api`. See [`API_CONTRACT.md`](API_CONTRACT.md) for request/response examples,
+validation and scheduling rules.
 
-Base path: /api
+Except for the three explicitly public routes, requests require
+`Authorization: Bearer <accessToken>`.
 
----
+## Public
 
-## AUTH
+| Method | Path                 | Success | Purpose                              |
+| ------ | -------------------- | ------- | ------------------------------------ |
+| `GET`  | `/api/health`        | `200`   | Container/load-balancer health probe |
+| `POST` | `/api/auth/register` | `201`   | Create a user                        |
+| `POST` | `/api/auth/login`    | `200`   | Issue a JWT                          |
 
-POST /api/auth/register
+## Authenticated user
 
-Request:
-{
-"email": "test@test.com",
-"password": "password"
-}
+| Method | Path      | Success | Purpose                           |
+| ------ | --------- | ------- | --------------------------------- |
+| `GET`  | `/api/me` | `200`   | Inspect the current JWT principal |
 
-POST /api/auth/login
+## Decks
 
-Response:
-{
-"message": "ok",
-"accessToken": "jwt-token",
-"tokenType": "Bearer"
-}
+| Method   | Path              | Success | Purpose                        |
+| -------- | ----------------- | ------- | ------------------------------ |
+| `GET`    | `/api/decks`      | `200`   | List owned decks               |
+| `POST`   | `/api/decks`      | `201`   | Create a deck                  |
+| `GET`    | `/api/decks/{id}` | `200`   | Get one owned deck             |
+| `PUT`    | `/api/decks/{id}` | `200`   | Replace editable deck fields   |
+| `DELETE` | `/api/decks/{id}` | `204`   | Delete a deck and its contents |
 
----
+## Cards
 
-## DECKS
+| Method   | Path                        | Success | Purpose                              |
+| -------- | --------------------------- | ------- | ------------------------------------ |
+| `GET`    | `/api/decks/{deckId}/cards` | `200`   | List cards in an owned deck          |
+| `POST`   | `/api/decks/{deckId}/cards` | `201`   | Create a card                        |
+| `GET`    | `/api/cards/{cardId}`       | `200`   | Get one card through deck ownership  |
+| `PUT`    | `/api/cards/{cardId}`       | `200`   | Replace editable card fields         |
+| `DELETE` | `/api/cards/{cardId}`       | `204`   | Delete a card and its review history |
 
-GET /api/decks
-POST /api/decks
-GET /api/decks/{id}
-PUT /api/decks/{id}
-DELETE /api/decks/{id}
+## Training and statistics
 
----
+| Method | Path                              | Success | Purpose                             |
+| ------ | --------------------------------- | ------- | ----------------------------------- |
+| `POST` | `/api/decks/{deckId}/train/start` | `200`   | Get the first available card/result |
+| `POST` | `/api/decks/{deckId}/train/next`  | `200`   | Get the next available card/result  |
+| `POST` | `/api/cards/{cardId}/review`      | `200`   | Save a rating and new schedule      |
+| `GET`  | `/api/decks/{deckId}/stats`       | `200`   | Get new/due/scheduled counts        |
 
-## CARDS
-
-GET /api/decks/{deckId}/cards
-POST /api/decks/{deckId}/cards
-PUT /api/cards/{id}
-DELETE /api/cards/{id}
-
----
-
-## TRAINING
-
-GET /api/training/next?deckId=1
-
-POST /api/training/review
-
-Request:
-{
-"cardId": 1,
-"rating": "GOOD"
-}
-
----
-
-## STATS
-
-GET /api/stats/decks/{deckId}
-
-Response example:
-{
-"totalCards": 20,
-"new": 5,
-"learning": 7,
-"review": 4,
-"mastered": 4,
-"totalReviews": 120,
-"reviewsToday": 8
-}
+Owner mismatch and unknown resource IDs both return `404`. Invalid input returns `400`, missing or
+invalid authentication returns `401`, and duplicate email/term conflicts return `409`.

@@ -1,28 +1,35 @@
 @startuml
-actor User as U
-participant "Angular UI" as UI
-participant "TrainingController" as TC
-participant "TrainingService" as TS
-participant "CardRepository" as CR
-participant "ReviewLogRepository" as RR
+actor Learner
+participant "Angular training page" as UI
+participant TrainingController as Controller
+participant TrainingService as Service
+participant DeckRepository as Decks
+participant CardRepository as Cards
+participant ReviewLogRepository as Reviews
 
-== Get Next ==
-U -> UI: Start training
-UI -> TC: GET /api/training/next?deckId=X (JWT)
-TC -> TS: getNextCard(userId, deckId)
-TS -> CR: findNextCandidate(deckId)
-CR --> TS: Card (or none)
-TS --> TC: Card (or none)
-TC --> UI: 200 OK card OR 204 No Content
+== Select card ==
+Learner -> UI: Start training
+UI -> Controller: POST /api/decks/{deckId}/train/start (JWT)
+Controller -> Service: nextCardResult(userId, deckId)
+Service -> Decks: findByIdAndOwnerId(deckId, userId)
+Decks --> Service: owned Deck
+Service -> Cards: find oldest new, else earliest due
+Cards --> Service: Card or none
+Service --> Controller: TrainingNextResponse
+Controller --> UI: 200 {hasCard, reason, card}
 
-== Submit Review ==
-U -> UI: Click rating (GOOD)
-UI -> TC: POST /api/training/review {cardId, rating} (JWT)
-TC -> TS: submitReview(userId, cardId, rating)
-TS -> TS: owner check via card->deck->userId
-TS -> RR: save ReviewLog(cardId, rating, reviewedAt)
-TS -> TS: update card status mapping
-TS -> CR: save updated Card
-TS --> TC: OK
-TC --> UI: 200 OK
+== Review card ==
+Learner -> UI: Reveal answer and choose GOOD
+UI -> Controller: POST /api/cards/{cardId}/review {rating: GOOD}
+Controller -> Service: reviewCard(userId, cardId, GOOD)
+Service -> Cards: findById(cardId)
+Cards --> Service: Card
+Service -> Decks: verify card's deck owner
+Service -> Service: now; intervalDays = 7
+Service -> Reviews: save ReviewLog(card, GOOD, now)
+Service -> Service: transaction dirty-checks Card schedule
+Service --> Controller: TrainingCardResponse
+Controller --> UI: 200 updated schedule
+UI -> Controller: POST /api/decks/{deckId}/train/next
+
 @enduml
