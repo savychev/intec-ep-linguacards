@@ -34,9 +34,9 @@ in [`PLAN.md`](PLAN.md).
 - [x] Deck list, create, edit and delete UI.
 - [x] Card list, create, edit and delete UI.
 - [x] Training card and rating UI.
-- [ ] Statistics view.
-- [ ] Loading, empty and error states.
-- [ ] Component and service tests for the core workflow.
+- [x] Statistics view.
+- [x] Loading, empty and error states.
+- [x] Component and service tests for the core workflow.
 
 ## P3 — release polish
 

@@ -26,12 +26,12 @@ target language.
 - 🗂️ **Decks & cards** — full CRUD, owner isolation (users only see their own data)
 - 🎯 **Training flow** — get next card, rate it (`AGAIN / HARD / GOOD / EASY`),
   review history (`ReviewLog`), card status updates
-- 📊 **Deck statistics** — totals, cards by status, reviews today
+- 📊 **Deck statistics** — totals, new cards, reviews due now and cards scheduled for later
 - ⚠️ **Consistent API errors** — global exception handling with typed exceptions
 - 🩺 Health endpoint; DTOs for every request/response
 
-**Frontend:** Angular SPA with working authentication, protected routing, personal deck/card CRUD
-and the complete review-rating flow. Deck statistics are in development.
+**Frontend:** Angular SPA with working authentication, protected routing, personal deck/card CRUD,
+the complete review-rating flow and a deck statistics dashboard.
 
 ## 🧱 Tech stack
 
@@ -50,7 +50,7 @@ backend/    Spring Boot REST API
     security/     JWT token service
     config/       SecurityConfig · JwtProperties · PasswordConfig
     exception/    GlobalExceptionHandler + typed exceptions
-frontend/   Angular SPA (features: auth · decks · training)
+frontend/   Angular SPA (features: auth · decks · training · statistics)
 docs/       PRD · scope · architecture · ERD · UML · user stories · code reviews
 ```
 

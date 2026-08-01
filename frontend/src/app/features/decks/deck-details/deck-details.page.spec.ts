@@ -62,12 +62,17 @@ describe('DeckDetailsPage', () => {
     expect(root().textContent).toContain('gezellig');
   });
 
-  it('links a non-empty deck to its training session', () => {
-    const link = [...root().querySelectorAll<HTMLAnchorElement>('a')].find(
+  it('links a non-empty deck to its training session and statistics', () => {
+    const links = [...root().querySelectorAll<HTMLAnchorElement>('a')];
+    const trainingLink = links.find(
       (candidate) => candidate.textContent?.trim() === 'Start training',
     );
+    const statisticsLink = links.find(
+      (candidate) => candidate.textContent?.trim() === 'View statistics',
+    );
 
-    expect(link?.getAttribute('href')).toBe('/training?deckId=1');
+    expect(trainingLink?.getAttribute('href')).toBe('/training?deckId=1');
+    expect(statisticsLink?.getAttribute('href')).toBe('/stats?deckId=1');
   });
 
   it('creates a normalized card and adds it to the deck', () => {

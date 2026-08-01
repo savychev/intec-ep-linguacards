@@ -10,10 +10,11 @@ milestone explicitly says so.
 
 - The full backend MVP is implemented: JWT authentication, personal decks and cards, training,
   review history and deck statistics.
-- The Angular application has working authentication, personal deck/card management and the full
-  training rating flow. The statistics screen is not implemented yet.
+- The Angular application has working authentication, personal deck/card management, the full
+  training rating flow and a deck statistics dashboard.
 - Backend integration tests cover authentication, data ownership, training and deck statistics.
-  Frontend tests cover the application shell, authentication, deck/card management and training.
+  Frontend tests cover the application shell, authentication, deck/card management, training and
+  statistics.
 - Flyway owns schema creation, with Hibernate validation guarding entity/schema drift.
 
 ## P0 — reproducible baseline (0.5–1 day)
@@ -47,11 +48,12 @@ Exit criterion: core API behaviour, data isolation and schema creation are prote
 - [x] Add token handling, route protection and authentication API error handling.
 - [x] Implement deck and card management screens.
 - [x] Implement the training flow and rating controls.
-- [ ] Implement deck statistics.
-- [ ] Add focused component and service tests.
-- [ ] Provide clear loading, empty and error states.
+- [x] Implement deck statistics.
+- [x] Add focused component and service tests.
+- [x] Provide clear loading, empty and error states.
 
-Exit criterion: a user can complete the main workflow from registration through training in the UI.
+Exit criterion: a user can complete the main workflow from registration through training and
+inspect the resulting deck schedule in the UI.
 
 ## P3 — portfolio release (1–3 days)
 

@@ -28,6 +28,9 @@
       <p>{{ cards().length }} {{ cards().length === 1 ? 'card' : 'cards' }}</p>
     </div>
     <div class="deck-actions">
+      <a class="secondary-button" routerLink="/stats" [queryParams]="{ deckId: currentDeck.id }">
+        View statistics
+      </a>
       @if (cards().length > 0) {
         <a
           class="secondary-button"
