@@ -16,6 +16,8 @@ production certification.
   [`ed142fd`](https://github.com/aquasecurity/trivy-action/commit/ed142fd0673e97e23eac54620cfb913e5ce36c25),
   and that action in turn pins its setup/cache actions. The scanner binary is fixed at v0.70.0.
 - Weekly Dependabot checks cover Maven, npm, GitHub Actions and both Dockerfiles.
+- Both runtime Dockerfiles explicitly select non-root users; the frontend repeats the upstream
+  unprivileged NGINX image's UID/GID `101:101` so the property is visible to static policy scans.
 
 ## Automated gates
 

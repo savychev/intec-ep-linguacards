@@ -17,6 +17,8 @@ FROM nginxinc/nginx-unprivileged:1.30.4-alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /workspace/dist/app/browser /usr/share/nginx/html
 
+USER 101:101
+
 EXPOSE 8080
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=6 \
